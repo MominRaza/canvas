@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="main.js" defer></script>
+</head>
+
+<body>
+    <img src="">
+    <select id="drawType">
+        <option value="polygon">Polygon</option>
+        <option value="rectangle">Rectangle</option>
+    </select>
+    <select id="colorPicker">
+        <option value="black">Black</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+    </select>
+    <button id="drawButton">Draw</button>
+    <button id="cancelButton" disabled>Cancel</button>
+    <button id="clearButton">Clear</button>
+    <select id="gridSize">
+        <option value="10">10x10</option>
+        <option value="20">20x20</option>
+        <option value="30">30x30</option>
+        <option value="40">40x40</option>
+    </select>
+    <button id="showGridButton">Show Grid</button>
+    <canvas id="canvas"></canvas>
+</body>
+
+</html>
