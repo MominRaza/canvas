@@ -47,6 +47,7 @@ cancelButton.addEventListener('click', () => {
     cancelButton.disabled = true;
     points = [];
     canvas.style.cursor = 'default';
+    redraw();
 });
 
 clearButton.addEventListener('click', () => {
@@ -137,9 +138,11 @@ canvas.addEventListener('click', (event) => {
     if (isDrawing) {
         if (points.length > 0 && Math.abs(x - points[0].x) < CLICK_THRESHOLD && Math.abs(y - points[0].y) < CLICK_THRESHOLD) {
             polygons.push({ points, color: colorPicker.value });
-            redraw();
             isDrawing = false;
             points = [];
+            redraw();
+            drawButton.disabled = false;
+            cancelButton.disabled = true;
             canvas.style.cursor = 'default';
         } else {
             points.push({ x, y });
@@ -195,12 +198,6 @@ canvas.addEventListener('mousemove', (event) => {
     }
 });
 
-document.getElementById('polygonButton').addEventListener('click', () => {
-    isDrawing = true;
-    points = [];
-    canvas.style.cursor = 'crosshair';
-});
-
 function redraw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (isGridVisible) {
@@ -208,14 +205,15 @@ function redraw() {
         drawGrid(gridSize);
     }
 
+    polygons.forEach(drawPolygon);
+
     if (points.length > 1) {
         ctx.beginPath();
         for (let i = 1; i < points.length; i++) {
             ctx.moveTo(points[i - 1].x, points[i - 1].y);
             ctx.lineTo(points[i].x, points[i].y);
         }
+        ctx.strokeStyle = colorPicker.value;
         ctx.stroke();
     }
-
-    polygons.forEach(drawPolygon);
 }
