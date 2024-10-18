@@ -29,7 +29,7 @@ width.addEventListener('change', (event) => {
 });
 
 colorPicker.addEventListener('change', (event) => {
-  drawer.setColor(event.target.value);
+  drawer.setDrawingColor(event.target.value);
 });
 
 gridSize.addEventListener('change', (event) => {
@@ -41,7 +41,7 @@ showGrid.addEventListener('change', (event) => {
 });
 
 drawType.addEventListener('change', (event) => {
-  drawer.setDrawType(event.target.value);
+  drawer.setDrawingType(event.target.value);
 });
 
 cancelButton.addEventListener('click', () => {

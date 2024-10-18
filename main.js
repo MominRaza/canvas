@@ -9,26 +9,65 @@ export default class DrawCanvasShapes {
      * @type {HTMLCanvasElement}
      */
     #canvas;
+
     /**
      * @type {CanvasRenderingContext2D}
      */
     #ctx;
+
     /**
      * @type {Array<{x: number, y: number}>}
      */
     #points;
+
     /**
      * @type {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>}
-    */
+     */
     #drawings;
+
+    /**
+     * @type {boolean}
+     */
     #isDrawing
+
+    /**
+     * @type {boolean}
+     */
     #isGridVisible;
+
+    /**
+     * @type {number}
+     */
     #gridSize;
+
+    /**
+     * @type {string}
+     */
     #gridColor;
+
+    /**
+     * @type {number}
+     */
     #crossIconSize;
+
+    /**
+     * @type {number}
+     */
     #clickThreshold;
-    #drawType;
-    #color;
+
+    /**
+     * @type {string}
+     */
+    #drawingType;
+
+    /**
+     * @type {string}
+     */
+    #drawingColor;
+
+    /**
+     * @type {boolean}
+     */
     #showCrossIcon;
 
     /**
@@ -57,28 +96,28 @@ export default class DrawCanvasShapes {
     #crossIcon;
 
     /**
-     * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, drawingType: string, showCrossIcon: boolean}} options
+     * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, gridColor: string, drawingType: string, showCrossIcon: boolean, drawings: Array<{points: Array<{x: number, y: number}>, color: string, type: string}>, crossIconSize: number, clickThreshold: number}} options
      * @returns {void}
      * @throws {Error}
      */
-    constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, drawingType, showCrossIcon }) {
+    constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, gridColor, drawingType, showCrossIcon, drawings, crossIconSize, clickThreshold }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
         if (drawingType && !['polygon', 'rectangle', 'circle', 'triangle'].includes(drawingType)) {
             throw new Error('Invalid draw type');
         }
 
         this.#canvas = canvas;
-        this.#canvas.height = canvasHeight ?? 400;
+        this.#canvas.height = canvasHeight ?? 300;
         this.#canvas.width = canvasWidth ?? 497;
-        this.#drawings = [];
+        this.#drawings = drawings ?? [];
         this.#isDrawing = true;
-        this.#isGridVisible = showGrid;
-        this.#gridSize = gridSize;
-        this.#gridColor = '#ddd';
-        this.#crossIconSize = 10;
-        this.#clickThreshold = 20;
-        this.#drawType = drawingType ?? 'polygon';
-        this.#color = drawingColor ?? '#000';
+        this.#isGridVisible = showGrid ?? false;
+        this.#gridSize = gridSize ?? 20;
+        this.#gridColor = gridColor ?? '#ddd';
+        this.#crossIconSize = crossIconSize ?? 10;
+        this.#clickThreshold = clickThreshold ?? 20;
+        this.#drawingType = drawingType ?? 'polygon';
+        this.#drawingColor = drawingColor ?? '#000';
         this.#showCrossIcon = showCrossIcon ?? true;
         this.#init();
     }
@@ -106,14 +145,14 @@ export default class DrawCanvasShapes {
                 if (removed) return this.#redraw();
             }
 
-            switch (this.#drawType) {
+            switch (this.#drawingType) {
                 case 'polygon':
-                    this.#polygon.click(this.#points, this.#drawings, x, y, this.#color, this.#drawType, this.#clickThreshold);
+                    this.#polygon.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#clickThreshold);
                     break;
                 case 'rectangle':
                 case 'circle':
                 case 'triangle':
-                    this.#rectangle.click(this.#points, this.#drawings, x, y, this.#color, this.#drawType);
+                    this.#rectangle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
                     break;
                 default:
                     break;
@@ -135,18 +174,18 @@ export default class DrawCanvasShapes {
 
             this.#redraw();
 
-            switch (this.#drawType) {
+            switch (this.#drawingType) {
                 case 'polygon':
-                    this.#polygon.drawPreview(this.#points, x, y, this.#color);
+                    this.#polygon.drawPreview(this.#points, x, y, this.#drawingColor);
                     break;
                 case 'rectangle':
-                    this.#rectangle.drawPreview(this.#points, x, y, this.#color);
+                    this.#rectangle.drawPreview(this.#points, x, y, this.#drawingColor);
                     break;
                 case 'circle':
-                    this.#circle.drawPreview(this.#points, x, y, this.#color);
+                    this.#circle.drawPreview(this.#points, x, y, this.#drawingColor);
                     break;
                 case 'triangle':
-                    this.#triangle.drawPreview(this.#points, x, y, this.#color);
+                    this.#triangle.drawPreview(this.#points, x, y, this.#drawingColor);
                     break;
                 default:
                     break;
@@ -187,17 +226,8 @@ export default class DrawCanvasShapes {
      * @param {string} color
      * @returns {void}
      */
-    setGridColor(color) {
-        this.#gridColor = color;
-        this.#redraw();
-    }
-
-    /**
-     * @param {string} color
-     * @returns {void}
-     */
-    setColor(color) {
-        this.#color = color;
+    setDrawingColor(color) {
+        this.#drawingColor = color;
     }
 
     /**
@@ -205,11 +235,11 @@ export default class DrawCanvasShapes {
      * @returns {void}
      * @throws {Error}
      */
-    setDrawType(type) {
+    setDrawingType(type) {
         if (!['polygon', 'rectangle', 'circle', 'triangle'].includes(type)) {
             throw new Error('Invalid draw type');
         }
-        this.#drawType = type;
+        this.#drawingType = type;
     }
 
     /**
@@ -248,7 +278,7 @@ export default class DrawCanvasShapes {
                 this.#ctx.moveTo(this.#points[i - 1].x, this.#points[i - 1].y);
                 this.#ctx.lineTo(this.#points[i].x, this.#points[i].y);
             }
-            this.#ctx.strokeStyle = this.#color;
+            this.#ctx.strokeStyle = this.#drawingColor;
             this.#ctx.stroke();
         }
     }
