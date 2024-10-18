@@ -16,8 +16,8 @@ export default class CrossIcon {
   */
   draw(drawing) {
     if (!this.showCrossIcon) return;
-    const { points, color } = drawing;
-    const { x, y } = this.#topRightPoint(points);
+    const { points, color, type } = drawing;
+    const { x, y } = this.#topRightPoint(points, type);
     this.ctx.beginPath();
     this.ctx.arc(x, y, this.crossIconSize, 0, 2 * Math.PI);
     this.ctx.fillStyle = 'white';
@@ -35,10 +35,18 @@ export default class CrossIcon {
 
   /**
    * @param {Array<{x: number, y: number}>} points
-   * @param {number} canvasWidth
+   * @param {string} type
    * @returns {{x: number, y: number}}
    */
-  #topRightPoint(points) {
+  #topRightPoint(points, type) {
+    if (type === 'rectangle') {
+      const [start, end] = points;
+      return {
+        x: Math.max(start.x, end.x),
+        y: Math.min(start.y, end.y)
+      };
+    }
+
     let topRightPoint = points[0];
     let topRightDistance = this.#calculateDistance(points[0]);
 
@@ -68,11 +76,12 @@ export default class CrossIcon {
     if (!this.showCrossIcon) return false;
 
     for (let i = 0; i < drawings.length; i++) {
-      const points = drawings[i].points;
-      const topRight = this.#topRightPoint(points);
+      const { points, type } = drawings[i];
+      const topRight = this.#topRightPoint(points, type);
 
       if (Math.abs(x - topRight.x) < this.crossIconSize && Math.abs(y - topRight.y) < this.crossIconSize) {
         drawings.splice(i, 1);
+        this.ctx.canvas.style.cursor = 'crosshair';
         return true;
       }
     }
@@ -90,8 +99,8 @@ export default class CrossIcon {
     let cursorStyle = 'crosshair';
 
     for (let i = 0; i < drawings.length; i++) {
-      const points = drawings[i].points;
-      const topRight = this.#topRightPoint(points, this.ctx.canvas.width);
+      const { points, type } = drawings[i];
+      const topRight = this.#topRightPoint(points, type);
       if (Math.abs(x - topRight.x) < this.crossIconSize && Math.abs(y - topRight.y) < this.crossIconSize) {
         cursorStyle = 'pointer';
         break;
