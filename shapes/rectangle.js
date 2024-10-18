@@ -1,24 +1,22 @@
 export default class Rectangle {
   /**
    * @param {CanvasRenderingContext2D} ctx
-   * @param {Array<{x: number, y: number}>} points
-   * @param {string} color
+   * @param {{points: Array<{x: number, y: number}>, color: string, type: string}} drawing
    */
-  constructor(ctx, points, color, crossIconSize) {
+  constructor(ctx, drawing) {
     this.ctx = ctx;
-    this.points = points;
-    this.color = color;
-    this.crossIconSize = crossIconSize;
+    this.drawing = drawing;
   }
 
   draw() {
-    if (this.points.length < 2) return;
+    const { points, color } = this.drawing;
+    if (points.length < 2) return;
 
-    const [start, end] = this.points;
+    const [start, end] = points;
     const width = end.x - start.x;
     const height = end.y - start.y;
 
-    this.ctx.fillStyle = this.color;
+    this.ctx.fillStyle = color;
     this.ctx.fillRect(start.x, start.y, width, height);
   }
 }

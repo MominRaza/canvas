@@ -1,5 +1,6 @@
 import Polygon from './shapes/polygon.js';
 import Rectangle from './shapes/rectangle.js';
+import CrossIcon from './shapes/cross-icon.js';
 
 export default class DrawCanvasShapes {
     /**
@@ -254,15 +255,15 @@ export default class DrawCanvasShapes {
         this.#drawings.forEach((drawing) => {
             switch (drawing.type) {
                 case 'polygon':
-                    const polygonShape = new Polygon(this.#ctx, drawing.points, drawing.color, this.#crossIconSize);
-                    polygonShape.draw();
+                    new Polygon(this.#ctx, drawing).draw();
                     break;
                 case 'rectangle':
-                    const rectangleShape = new Rectangle(this.#ctx, drawing.points, drawing.color);
-                    rectangleShape.draw();
+                    new Rectangle(this.#ctx, drawing).draw();
+                    break;
                 default:
                     break;
             }
+            new CrossIcon(this.#ctx, drawing, this.#crossIconSize).draw();
         });
 
         if (this.#points.length > 1) {
