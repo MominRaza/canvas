@@ -1,4 +1,4 @@
-export default class Circle {
+export default class Triangle {
   /**
    * @param {CanvasRenderingContext2D} ctx
    */
@@ -11,10 +11,11 @@ export default class Circle {
    */
   draw({ points, color }) {
     const [start, end] = points;
-    const radius = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
-    const { x, y } = start;
     this.ctx.beginPath();
-    this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    this.ctx.moveTo(start.x, start.y);
+    this.ctx.lineTo(end.x, end.y);
+    this.ctx.lineTo(start.x - (end.x - start.x), end.y);
+    this.ctx.closePath();
     this.ctx.fillStyle = color;
     this.ctx.fill();
   }

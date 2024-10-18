@@ -1,6 +1,7 @@
 import Polygon from './shapes/polygon.js';
 import Rectangle from './shapes/rectangle.js';
 import Circle from './shapes/circle.js';
+import Triangle from './shapes/triangle.js';
 import CrossIcon from './shapes/cross-icon.js';
 
 export default class DrawCanvasShapes {
@@ -33,16 +34,17 @@ export default class DrawCanvasShapes {
     #polygon;
     #rectangle;
     #circle;
+    #triangle;
     #crossIcon;
 
     /**
-     * @param {Object} params
+     * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, drawingType: string, showCrossIcon: boolean}} options
      * @returns {void}
      * @throws {Error}
      */
     constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, drawingType, showCrossIcon }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
-        if (drawingType && !['polygon', 'rectangle', 'circle'].includes(drawingType)) {
+        if (drawingType && !['polygon', 'rectangle', 'circle', 'triangle'].includes(drawingType)) {
             throw new Error('Invalid draw type');
         }
 
@@ -71,6 +73,7 @@ export default class DrawCanvasShapes {
         this.#polygon = new Polygon(this.#ctx);
         this.#rectangle = new Rectangle(this.#ctx);
         this.#circle = new Circle(this.#ctx);
+        this.#triangle = new Triangle(this.#ctx);
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
 
         this.#canvas.addEventListener('click', (event) => {
@@ -104,6 +107,7 @@ export default class DrawCanvasShapes {
                     break;
                 case 'rectangle':
                 case 'circle':
+                case 'triangle':
                     this.#points.push({ x, y });
                     if (this.#points.length === 2) {
                         this.#drawings.push({ points: this.#points, color: this.#color, type: this.#drawType });
@@ -155,6 +159,16 @@ export default class DrawCanvasShapes {
                     const radius = Math.sqrt((x - start.x) ** 2 + (y - start.y) ** 2);
                     this.#ctx.beginPath();
                     this.#ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
+                    this.#ctx.lineWidth = 2;
+                    this.#ctx.strokeStyle = this.#color;
+                    this.#ctx.stroke();
+                    break;
+                case 'triangle':
+                    this.#ctx.beginPath();
+                    this.#ctx.moveTo(this.#points[0].x, this.#points[0].y);
+                    this.#ctx.lineTo(x, y);
+                    this.#ctx.lineTo(this.#points[0].x - (x - this.#points[0].x), y);
+                    this.#ctx.closePath();
                     this.#ctx.lineWidth = 2;
                     this.#ctx.strokeStyle = this.#color;
                     this.#ctx.stroke();
@@ -212,12 +226,12 @@ export default class DrawCanvasShapes {
     }
 
     /**
-     * @param {'polygon'|'rectangle'} type
+     * @param {'polygon'|'rectangle'|'circle'|'triangle'} type
      * @returns {void}
      * @throws {Error}
      */
     setDrawType(type) {
-        if (!['polygon', 'rectangle', 'circle'].includes(type)) {
+        if (!['polygon', 'rectangle', 'circle', 'triangle'].includes(type)) {
             throw new Error('Invalid draw type');
         }
         this.#drawType = type;
@@ -275,6 +289,9 @@ export default class DrawCanvasShapes {
                     break;
                 case 'circle':
                     this.#circle.draw(drawing);
+                    break;
+                case 'triangle':
+                    this.#triangle.draw(drawing);
                     break;
                 default:
                     break;

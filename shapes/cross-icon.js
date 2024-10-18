@@ -90,7 +90,7 @@ export default class CrossIcon {
       const { points, type } = drawings[i];
       const topRight = this.#topRightPoint(points, type);
 
-      if (Math.abs(x - topRight.x) < this.crossIconSize && Math.abs(y - topRight.y) < this.crossIconSize) {
+      if (Math.abs(x - topRight.x) < this.crossIconSize * 1.2 && Math.abs(y - topRight.y) < this.crossIconSize * 1.2) {
         drawings.splice(i, 1);
         this.ctx.canvas.style.cursor = 'crosshair';
         return true;
@@ -112,7 +112,7 @@ export default class CrossIcon {
     for (let i = 0; i < drawings.length; i++) {
       const { points, type } = drawings[i];
       const topRight = this.#topRightPoint(points, type);
-      if (Math.abs(x - topRight.x) < this.crossIconSize && Math.abs(y - topRight.y) < this.crossIconSize) {
+      if (Math.abs(x - topRight.x) < this.crossIconSize * 1.2 && Math.abs(y - topRight.y) < this.crossIconSize * 1.2) {
         cursorStyle = 'pointer';
         break;
       }
