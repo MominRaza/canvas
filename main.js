@@ -1,4 +1,5 @@
 import Polygon from './shapes/polygon.js';
+import Rectangle from './shapes/rectangle.js';
 
 export default class DrawCanvasShapes {
     /**
@@ -36,8 +37,12 @@ export default class DrawCanvasShapes {
      * @returns {void}
      * @throws {Error}
      */
-    constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize }) {
+    constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, drawingType }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
+        if (drawingType && drawingType !== 'polygon' && drawingType !== 'rectangle') {
+            throw new Error('Invalid draw type');
+        }
+
         this.#canvas = canvas;
         this.#canvas.height = canvasHeight ?? 400;
         this.#canvas.width = canvasWidth ?? 497;
@@ -48,7 +53,7 @@ export default class DrawCanvasShapes {
         this.#gridColor = '#ddd';
         this.#crossIconSize = 10;
         this.#clickThreshold = 20;
-        this.#drawType = 'polygon';
+        this.#drawType = drawingType ?? 'polygon';
         this.#color = drawingColor ?? '#000';
         this.#init();
     }
@@ -76,20 +81,34 @@ export default class DrawCanvasShapes {
                 }
             }
 
-            if (this.#points.length > 0 && Math.abs(x - this.#points[0].x) < this.#clickThreshold && Math.abs(y - this.#points[0].y) < this.#clickThreshold) {
-                if (this.#points.length > 2) {
-                    this.#drawings.push({ points: this.#points, color: this.#color });
-                    this.#points = [];
-                    this.#redraw();
-                }
-            } else {
-                this.#points.push({ x, y });
-                if (this.#points.length > 1) {
-                    this.#ctx.beginPath();
-                    this.#ctx.moveTo(this.#points[this.#points.length - 2].x, this.#points[this.#points.length - 2].y);
-                    this.#ctx.lineTo(x, y);
-                    this.#ctx.stroke();
-                }
+            switch (this.#drawType) {
+                case 'polygon':
+                    if (this.#points.length > 0 && Math.abs(x - this.#points[0].x) < this.#clickThreshold && Math.abs(y - this.#points[0].y) < this.#clickThreshold) {
+                        if (this.#points.length > 2) {
+                            this.#drawings.push({ points: this.#points, color: this.#color, type: this.#drawType });
+                            this.#points = [];
+                            this.#redraw();
+                        }
+                    } else {
+                        this.#points.push({ x, y });
+                        if (this.#points.length > 1) {
+                            this.#ctx.beginPath();
+                            this.#ctx.moveTo(this.#points[this.#points.length - 2].x, this.#points[this.#points.length - 2].y);
+                            this.#ctx.lineTo(x, y);
+                            this.#ctx.stroke();
+                        }
+                    }
+                    break;
+                case 'rectangle':
+                    this.#points.push({ x, y });
+                    if (this.#points.length === 2) {
+                        this.#drawings.push({ points: this.#points, color: this.#color, type: this.#drawType });
+                        this.#points = [];
+                        this.#redraw();
+                    }
+                    break;
+                default:
+                    break;
             }
         });
 
@@ -117,12 +136,30 @@ export default class DrawCanvasShapes {
 
             this.#redraw();
 
-            this.#ctx.beginPath();
-            this.#ctx.moveTo(this.#points[this.#points.length - 1].x, this.#points[this.#points.length - 1].y);
-            this.#ctx.lineTo(x, y);
-            this.#ctx.lineWidth = 2;
-            this.#ctx.strokeStyle = this.#color;
-            this.#ctx.stroke();
+            switch (this.#drawType) {
+                case 'polygon':
+                    this.#ctx.beginPath();
+                    this.#ctx.moveTo(this.#points[this.#points.length - 1].x, this.#points[this.#points.length - 1].y);
+                    this.#ctx.lineTo(x, y);
+                    this.#ctx.lineWidth = 2;
+                    this.#ctx.strokeStyle = this.#color;
+                    this.#ctx.stroke();
+                    break;
+                case 'rectangle':
+                    const startX = this.#points[0].x;
+                    const startY = this.#points[0].y;
+                    const width = x - startX;
+                    const height = y - startY;
+
+                    this.#ctx.beginPath();
+                    this.#ctx.rect(startX, startY, width, height);
+                    this.#ctx.lineWidth = 2;
+                    this.#ctx.strokeStyle = this.#color;
+                    this.#ctx.stroke();
+                    break;
+                default:
+                    break;
+            }
         });
     }
 
@@ -178,7 +215,7 @@ export default class DrawCanvasShapes {
      * @throws {Error}
      */
     setDrawType(type) {
-        if (type !== 'polygon') {
+        if (type !== 'polygon' && type !== 'rectangle') {
             throw new Error('Invalid draw type');
         }
         this.#drawType = type;
@@ -215,8 +252,17 @@ export default class DrawCanvasShapes {
         this.#drawGrid();
 
         this.#drawings.forEach((drawing) => {
-            const polygonShape = new Polygon(this.#ctx, drawing.points, drawing.color, this.#crossIconSize);
-            polygonShape.draw();
+            switch (drawing.type) {
+                case 'polygon':
+                    const polygonShape = new Polygon(this.#ctx, drawing.points, drawing.color, this.#crossIconSize);
+                    polygonShape.draw();
+                    break;
+                case 'rectangle':
+                    const rectangleShape = new Rectangle(this.#ctx, drawing.points, drawing.color);
+                    rectangleShape.draw();
+                default:
+                    break;
+            }
         });
 
         if (this.#points.length > 1) {
