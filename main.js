@@ -24,6 +24,7 @@ let isDrawing = false;
 let isGridVisible = false;
 
 const CLICK_THRESHOLD = 20;
+const CROSS_ICON_SIZE = 10;
 
 const drawType = document.getElementById('drawType');
 const colorPicker = document.getElementById('colorPicker');
@@ -112,21 +113,18 @@ function drawPolygon(polygon) {
 }
 
 function drawCrossIcon(x, y, color) {
-    const size = CLICK_THRESHOLD;
-    const radius = size / 2;
-
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0, 2 * Math.PI);
+    ctx.arc(x, y, CROSS_ICON_SIZE, 0, 2 * Math.PI);
     ctx.fillStyle = 'white';
     ctx.fill();
     ctx.strokeStyle = color;
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(x - radius / 2, y - radius / 2);
-    ctx.lineTo(x + radius / 2, y + radius / 2);
-    ctx.moveTo(x + radius / 2, y - radius / 2);
-    ctx.lineTo(x - radius / 2, y + radius / 2);
+    ctx.moveTo(x - CROSS_ICON_SIZE / 2, y - CROSS_ICON_SIZE / 2);
+    ctx.lineTo(x + CROSS_ICON_SIZE / 2, y + CROSS_ICON_SIZE / 2);
+    ctx.moveTo(x + CROSS_ICON_SIZE / 2, y - CROSS_ICON_SIZE / 2);
+    ctx.lineTo(x - CROSS_ICON_SIZE / 2, y + CROSS_ICON_SIZE / 2);
     ctx.stroke();
 }
 
@@ -157,7 +155,7 @@ canvas.addEventListener('click', (event) => {
         for (let i = 0; i < polygons.length; i++) {
             const points = polygons[i].points;
             const topRight = points.reduce((prev, curr) => (curr.x > prev.x ? curr : prev), polygons[i].points[0]);
-            if (Math.abs(x - topRight.x) < CLICK_THRESHOLD / 2 && Math.abs(y - topRight.y) < CLICK_THRESHOLD / 2) {
+            if (Math.abs(x - topRight.x) < CROSS_ICON_SIZE && Math.abs(y - topRight.y) < CROSS_ICON_SIZE) {
                 polygons.splice(i, 1);
                 redraw();
                 return;
@@ -188,7 +186,7 @@ canvas.addEventListener('mousemove', (event) => {
         for (let i = 0; i < polygons.length; i++) {
             const points = polygons[i].points;
             const topRight = points.reduce((prev, curr) => (curr.x > prev.x ? curr : prev), polygons[i].points[0]);
-            if (Math.abs(x - topRight.x) < CLICK_THRESHOLD / 2 && Math.abs(y - topRight.y) < CLICK_THRESHOLD / 2) {
+            if (Math.abs(x - topRight.x) < CROSS_ICON_SIZE && Math.abs(y - topRight.y) < CROSS_ICON_SIZE) {
                 cursorStyle = 'pointer';
                 break;
             }
