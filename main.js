@@ -27,18 +27,15 @@ export default class DrawCanvasShapes {
     #clickThreshold;
     #drawType;
     #color;
+    #crossIcon
+    #showCrossIcon
 
     /**
-     * @param {HTMLCanvasElement} canvas
-     * @param {number} canvasHeight
-     * @param {number} canvasWidth
-     * @param {string} drawingColor
-     * @param {boolean} showGrid
-     * @param {number} gridSize
+     * @param {Object} params
      * @returns {void}
      * @throws {Error}
      */
-    constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, drawingType }) {
+    constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, drawingType, showCrossIcon }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
         if (drawingType && drawingType !== 'polygon' && drawingType !== 'rectangle') {
             throw new Error('Invalid draw type');
@@ -56,6 +53,7 @@ export default class DrawCanvasShapes {
         this.#clickThreshold = 20;
         this.#drawType = drawingType ?? 'polygon';
         this.#color = drawingColor ?? '#000';
+        this.#showCrossIcon = showCrossIcon ?? true;
         this.#init();
     }
 
@@ -65,21 +63,17 @@ export default class DrawCanvasShapes {
         this.#points = [];
         this.#redraw();
 
+        this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
+
         this.#canvas.addEventListener('click', (event) => {
-            const rect = canvas.getBoundingClientRect();
+            const rect = this.#canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
 
             if (this.#points.length === 0) {
-                for (let i = 0; i < this.#drawings.length; i++) {
-                    const points = this.#drawings[i].points;
-                    const topRight = points.reduce((prev, curr) => (curr.x > prev.x ? curr : prev), this.#drawings[i].points[0]);
-                    if (Math.abs(x - topRight.x) < this.#clickThreshold && Math.abs(y - topRight.y) < this.#clickThreshold) {
-                        this.#drawings.splice(i, 1);
-                        this.#redraw();
-                        return;
-                    }
-                }
+                const removed = this.#crossIcon.click(this.#drawings, { x, y });
+
+                if (removed) return this.#redraw();
             }
 
             switch (this.#drawType) {
@@ -114,23 +108,12 @@ export default class DrawCanvasShapes {
         });
 
         this.#canvas.addEventListener('mousemove', (event) => {
-            const rect = canvas.getBoundingClientRect();
+            const rect = this.#canvas.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
 
             if (this.#points.length === 0) {
-                let cursorStyle = 'crosshair';
-
-                for (let i = 0; i < this.#drawings.length; i++) {
-                    const points = this.#drawings[i].points;
-                    const topRight = points.reduce((prev, curr) => (curr.x > prev.x ? curr : prev), this.#drawings[i].points[0]);
-                    if (Math.abs(x - topRight.x) < this.#clickThreshold && Math.abs(y - topRight.y) < this.#clickThreshold) {
-                        cursorStyle = 'pointer';
-                        break;
-                    }
-                }
-
-                this.#canvas.style.cursor = cursorStyle;
+                this.#crossIcon.hover(this.#drawings, { x, y });
             }
 
             if (this.#points.length === 0) return;
@@ -249,7 +232,7 @@ export default class DrawCanvasShapes {
      * @returns {void}
      */
     #redraw() {
-        this.#ctx.clearRect(0, 0, canvas.width, canvas.height);
+        this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
         this.#drawGrid();
 
         this.#drawings.forEach((drawing) => {
@@ -263,7 +246,7 @@ export default class DrawCanvasShapes {
                 default:
                     break;
             }
-            new CrossIcon(this.#ctx, drawing, this.#crossIconSize).draw();
+            this.#crossIcon.draw(drawing);
         });
 
         if (this.#points.length > 1) {
