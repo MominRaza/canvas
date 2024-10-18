@@ -108,35 +108,18 @@ export default class DrawCanvasShapes {
 
             switch (this.#drawType) {
                 case 'polygon':
-                    if (this.#points.length > 0 && Math.abs(x - this.#points[0].x) < this.#clickThreshold && Math.abs(y - this.#points[0].y) < this.#clickThreshold) {
-                        if (this.#points.length > 2) {
-                            this.#drawings.push({ points: this.#points, color: this.#color, type: this.#drawType });
-                            this.#points = [];
-                            this.#redraw();
-                        }
-                    } else {
-                        this.#points.push({ x, y });
-                        if (this.#points.length > 1) {
-                            this.#ctx.beginPath();
-                            this.#ctx.moveTo(this.#points[this.#points.length - 2].x, this.#points[this.#points.length - 2].y);
-                            this.#ctx.lineTo(x, y);
-                            this.#ctx.stroke();
-                        }
-                    }
+                    this.#polygon.click(this.#points, this.#drawings, x, y, this.#color, this.#drawType, this.#clickThreshold);
                     break;
                 case 'rectangle':
                 case 'circle':
                 case 'triangle':
-                    this.#points.push({ x, y });
-                    if (this.#points.length === 2) {
-                        this.#drawings.push({ points: this.#points, color: this.#color, type: this.#drawType });
-                        this.#points = [];
-                        this.#redraw();
-                    }
+                    this.#rectangle.click(this.#points, this.#drawings, x, y, this.#color, this.#drawType);
                     break;
                 default:
                     break;
             }
+
+            this.#redraw();
         });
 
         this.#canvas.addEventListener('mousemove', (event) => {

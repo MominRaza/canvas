@@ -19,6 +19,9 @@ export default class Circle {
     this.ctx.fill();
   }
 
+  // Same as Rectangle
+  // click() { }
+
   /**
    * @param {Array<{x: number, y: number}>} points
    * @param {number} x

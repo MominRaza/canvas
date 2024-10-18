@@ -22,6 +22,23 @@ export default class Rectangle {
 
   /**
    * @param {Array<{x: number, y: number}>} points
+   * @param {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>} drawings
+   * @param {number} x
+   * @param {number} y
+   * @param {string} color
+   * @param {string} drawType
+   * @returns {void}
+   */
+  click(points, drawings, x, y, color, drawType) {
+    points.push({ x, y });
+    if (points.length === 2) {
+      drawings.push({ points: [...points], color, type: drawType });
+      points.length = 0;
+    }
+  }
+
+  /**
+   * @param {Array<{x: number, y: number}>} points
    * @param {number} x
    * @param {number} y
    * @param {string} color
