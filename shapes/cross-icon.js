@@ -47,6 +47,17 @@ export default class CrossIcon {
       };
     }
 
+    if (type === 'circle') {
+      const start = points[0];
+      const end = points[1];
+      const radius = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
+      const angle = Math.PI / 4;
+      return {
+        x: start.x + radius * Math.cos(angle),
+        y: start.y - radius * Math.sin(angle)
+      };
+    }
+
     let topRightPoint = points[0];
     let topRightDistance = this.#calculateDistance(points[0]);
 
