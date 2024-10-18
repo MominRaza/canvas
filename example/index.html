@@ -11,6 +11,7 @@
 
 <body>
     <select id="drawType">
+        <option value="circle">Circle</option>
         <option value="polygon">Polygon</option>
         <option value="rectangle">Rectangle</option>
     </select>
@@ -20,17 +21,17 @@
         <option value="blue">Blue</option>
         <option value="green">Green</option>
     </select>
-    <button id="cancelButton" disabled>Cancel</button>
-    <button id="clearButton" disabled>Clear</button>
+    <button id="cancelButton">Cancel</button>
+    <button id="clearButton">Clear</button>
     <select id="gridSize">
         <option value="10">10x10</option>
         <option value="20">20x20</option>
         <option value="30">30x30</option>
         <option value="40">40x40</option>
     </select>
-    <input type="number" id="height" value="300">
-    <input type="number" id="width" value="497">
     <input type="checkbox" id="showGrid">Show Grid</input>
+    <br>
+    <input type="number" id="height" value="300"> x <input type="number" id="width" value="497">
     <canvas id="canvas"></canvas>
 </body>
 

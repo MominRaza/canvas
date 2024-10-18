@@ -1,15 +1,15 @@
 export default class Rectangle {
   /**
    * @param {CanvasRenderingContext2D} ctx
-   * @param {{points: Array<{x: number, y: number}>, color: string, type: string}} drawing
    */
-  constructor(ctx, drawing) {
+  constructor(ctx) {
     this.ctx = ctx;
-    this.drawing = drawing;
   }
 
-  draw() {
-    const { points, color } = this.drawing;
+  /**
+   * @param {{points: Array<{x: number, y: number}>, color: string, type: string}} drawing
+   */
+  draw({ points, color }) {
     if (points.length < 2) return;
 
     const [start, end] = points;

@@ -1,5 +1,6 @@
 import Polygon from './shapes/polygon.js';
 import Rectangle from './shapes/rectangle.js';
+import Circle from './shapes/circle.js';
 import CrossIcon from './shapes/cross-icon.js';
 
 export default class DrawCanvasShapes {
@@ -27,8 +28,12 @@ export default class DrawCanvasShapes {
     #clickThreshold;
     #drawType;
     #color;
-    #crossIcon
-    #showCrossIcon
+    #showCrossIcon;
+
+    #polygon;
+    #rectangle;
+    #circle;
+    #crossIcon;
 
     /**
      * @param {Object} params
@@ -37,7 +42,7 @@ export default class DrawCanvasShapes {
      */
     constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, drawingType, showCrossIcon }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
-        if (drawingType && drawingType !== 'polygon' && drawingType !== 'rectangle') {
+        if (drawingType && !['polygon', 'rectangle', 'circle'].includes(drawingType)) {
             throw new Error('Invalid draw type');
         }
 
@@ -63,6 +68,9 @@ export default class DrawCanvasShapes {
         this.#points = [];
         this.#redraw();
 
+        this.#polygon = new Polygon(this.#ctx);
+        this.#rectangle = new Rectangle(this.#ctx);
+        this.#circle = new Circle(this.#ctx);
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
 
         this.#canvas.addEventListener('click', (event) => {
@@ -95,6 +103,7 @@ export default class DrawCanvasShapes {
                     }
                     break;
                 case 'rectangle':
+                case 'circle':
                     this.#points.push({ x, y });
                     if (this.#points.length === 2) {
                         this.#drawings.push({ points: this.#points, color: this.#color, type: this.#drawType });
@@ -137,6 +146,15 @@ export default class DrawCanvasShapes {
 
                     this.#ctx.beginPath();
                     this.#ctx.rect(startX, startY, width, height);
+                    this.#ctx.lineWidth = 2;
+                    this.#ctx.strokeStyle = this.#color;
+                    this.#ctx.stroke();
+                    break;
+                case 'circle':
+                    const start = this.#points[0];
+                    const radius = Math.sqrt((x - start.x) ** 2 + (y - start.y) ** 2);
+                    this.#ctx.beginPath();
+                    this.#ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
                     this.#ctx.lineWidth = 2;
                     this.#ctx.strokeStyle = this.#color;
                     this.#ctx.stroke();
@@ -199,7 +217,7 @@ export default class DrawCanvasShapes {
      * @throws {Error}
      */
     setDrawType(type) {
-        if (type !== 'polygon' && type !== 'rectangle') {
+        if (!['polygon', 'rectangle', 'circle'].includes(type)) {
             throw new Error('Invalid draw type');
         }
         this.#drawType = type;
@@ -234,21 +252,7 @@ export default class DrawCanvasShapes {
     #redraw() {
         this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
         this.#drawGrid();
-
-        this.#drawings.forEach((drawing) => {
-            switch (drawing.type) {
-                case 'polygon':
-                    new Polygon(this.#ctx, drawing).draw();
-                    break;
-                case 'rectangle':
-                    new Rectangle(this.#ctx, drawing).draw();
-                    break;
-                default:
-                    break;
-            }
-            this.#crossIcon.draw(drawing);
-        });
-
+        this.#drawShapes();
         if (this.#points.length > 1) {
             this.#ctx.beginPath();
             for (let i = 1; i < this.#points.length; i++) {
@@ -258,5 +262,48 @@ export default class DrawCanvasShapes {
             this.#ctx.strokeStyle = this.#color;
             this.#ctx.stroke();
         }
+    }
+
+    #drawShapes() {
+        this.#drawings.forEach((drawing) => {
+            switch (drawing.type) {
+                case 'polygon':
+                    this.#polygon.draw(drawing);
+                    break;
+                case 'rectangle':
+                    this.#rectangle.draw(drawing);
+                    break;
+                case 'circle':
+                    this.#circle.draw(drawing);
+                    break;
+                default:
+                    break;
+            }
+            this.#crossIcon.draw(drawing);
+        });
+    }
+
+    /**
+     * @returns {void}
+    */
+    cancelDrawing() {
+        this.#points = [];
+        this.#redraw();
+    }
+
+    /**
+     * @returns {void}
+     */
+    clearCanvas() {
+        this.#points = [];
+        this.#drawings = [];
+        this.#redraw();
+    }
+
+    /**
+     * @returns {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>}
+     */
+    getDrawings() {
+        return this.#drawings;
     }
 }
