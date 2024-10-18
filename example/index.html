@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Canvas</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="main.js" defer></script>
+    <script src="main.js" type="module" defer></script>
 </head>
 
-<body>
+<in>
     <img src="">
     <select id="drawType">
         <option value="polygon">Polygon</option>
@@ -21,17 +21,18 @@
         <option value="blue">Blue</option>
         <option value="green">Green</option>
     </select>
-    <button id="drawButton">Draw</button>
     <button id="cancelButton" disabled>Cancel</button>
-    <button id="clearButton">Clear</button>
+    <button id="clearButton" disabled>Clear</button>
     <select id="gridSize">
         <option value="10">10x10</option>
         <option value="20">20x20</option>
         <option value="30">30x30</option>
         <option value="40">40x40</option>
     </select>
-    <button id="showGridButton">Show Grid</button>
+    <input type="number" id="height">
+    <input type="number" id="width">
+    <input type="checkbox" id="showGrid">Show Grid</input>
     <canvas id="canvas"></canvas>
-</body>
+    </body>
 
 </html>
