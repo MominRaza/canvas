@@ -18,4 +18,21 @@ export default class Circle {
     this.ctx.fillStyle = color;
     this.ctx.fill();
   }
+
+  /**
+   * @param {Array<{x: number, y: number}>} points
+   * @param {number} x
+   * @param {number} y
+   * @param {string} color
+   * @returns {void}
+   */
+  drawPreview(points, x, y, color) {
+    const start = points[0];
+    const radius = Math.sqrt((x - start.x) ** 2 + (y - start.y) ** 2);
+    this.ctx.beginPath();
+    this.ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = color;
+    this.ctx.stroke();
+  }
 }

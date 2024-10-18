@@ -80,10 +80,11 @@ export default class CrossIcon {
 
   /**
    * @param {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>} drawings
-   * @param {{x: number, y: number}} cursorPosition
+   * @param {number} x
+   * @param {number} y
    * @returns {boolean}
    */
-  click(drawings, { x, y }) {
+  click(drawings, x, y) {
     if (!this.showCrossIcon) return false;
 
     for (let i = 0; i < drawings.length; i++) {
@@ -102,9 +103,11 @@ export default class CrossIcon {
 
   /**
    * @param {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>} drawings
-   * @param {{x: number, y: number}} cursorPosition
+   * @param {number} x
+   * @param {number} y
+   * @returns {void}
    */
-  hover(drawings, { x, y }) {
+  hover(drawings, x, y) {
     if (!this.showCrossIcon) return;
 
     let cursorStyle = 'crosshair';

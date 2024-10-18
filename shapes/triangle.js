@@ -19,4 +19,22 @@ export default class Triangle {
     this.ctx.fillStyle = color;
     this.ctx.fill();
   }
+
+  /**
+   * @param {Array<{x: number, y: number}>} points
+   * @param {number} x
+   * @param {number} y
+   * @param {string} color
+   * @returns {void}
+   */
+  drawPreview(points, x, y, color) {
+    this.ctx.beginPath();
+    this.ctx.moveTo(points[0].x, points[0].y);
+    this.ctx.lineTo(x, y);
+    this.ctx.lineTo(points[0].x - (x - points[0].x), y);
+    this.ctx.closePath();
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = color;
+    this.ctx.stroke();
+  }
 }

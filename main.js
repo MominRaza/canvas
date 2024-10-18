@@ -31,10 +31,29 @@ export default class DrawCanvasShapes {
     #color;
     #showCrossIcon;
 
+    /**
+     * @type {Polygon}
+     */
     #polygon;
+
+    /**
+     * @type {Rectangle}
+     */
     #rectangle;
+
+    /**
+     * @type {Circle}
+     */
     #circle;
+
+    /**
+     * @type {Triangle}
+     */
     #triangle;
+
+    /**
+     * @type {CrossIcon}
+     */
     #crossIcon;
 
     /**
@@ -82,7 +101,7 @@ export default class DrawCanvasShapes {
             const y = event.clientY - rect.top;
 
             if (this.#points.length === 0) {
-                const removed = this.#crossIcon.click(this.#drawings, { x, y });
+                const removed = this.#crossIcon.click(this.#drawings, x, y);
 
                 if (removed) return this.#redraw();
             }
@@ -126,7 +145,7 @@ export default class DrawCanvasShapes {
             const y = event.clientY - rect.top;
 
             if (this.#points.length === 0) {
-                this.#crossIcon.hover(this.#drawings, { x, y });
+                this.#crossIcon.hover(this.#drawings, x, y);
             }
 
             if (this.#points.length === 0) return;
@@ -135,43 +154,16 @@ export default class DrawCanvasShapes {
 
             switch (this.#drawType) {
                 case 'polygon':
-                    this.#ctx.beginPath();
-                    this.#ctx.moveTo(this.#points[this.#points.length - 1].x, this.#points[this.#points.length - 1].y);
-                    this.#ctx.lineTo(x, y);
-                    this.#ctx.lineWidth = 2;
-                    this.#ctx.strokeStyle = this.#color;
-                    this.#ctx.stroke();
+                    this.#polygon.drawPreview(this.#points, x, y, this.#color);
                     break;
                 case 'rectangle':
-                    const startX = this.#points[0].x;
-                    const startY = this.#points[0].y;
-                    const width = x - startX;
-                    const height = y - startY;
-
-                    this.#ctx.beginPath();
-                    this.#ctx.rect(startX, startY, width, height);
-                    this.#ctx.lineWidth = 2;
-                    this.#ctx.strokeStyle = this.#color;
-                    this.#ctx.stroke();
+                    this.#rectangle.drawPreview(this.#points, x, y, this.#color);
                     break;
                 case 'circle':
-                    const start = this.#points[0];
-                    const radius = Math.sqrt((x - start.x) ** 2 + (y - start.y) ** 2);
-                    this.#ctx.beginPath();
-                    this.#ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
-                    this.#ctx.lineWidth = 2;
-                    this.#ctx.strokeStyle = this.#color;
-                    this.#ctx.stroke();
+                    this.#circle.drawPreview(this.#points, x, y, this.#color);
                     break;
                 case 'triangle':
-                    this.#ctx.beginPath();
-                    this.#ctx.moveTo(this.#points[0].x, this.#points[0].y);
-                    this.#ctx.lineTo(x, y);
-                    this.#ctx.lineTo(this.#points[0].x - (x - this.#points[0].x), y);
-                    this.#ctx.closePath();
-                    this.#ctx.lineWidth = 2;
-                    this.#ctx.strokeStyle = this.#color;
-                    this.#ctx.stroke();
+                    this.#triangle.drawPreview(this.#points, x, y, this.#color);
                     break;
                 default:
                     break;

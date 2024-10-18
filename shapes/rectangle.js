@@ -19,4 +19,24 @@ export default class Rectangle {
     this.ctx.fillStyle = color;
     this.ctx.fillRect(start.x, start.y, width, height);
   }
+
+  /**
+   * @param {Array<{x: number, y: number}>} points
+   * @param {number} x
+   * @param {number} y
+   * @param {string} color
+   * @returns {void}
+   */
+  drawPreview(points, x, y, color) {
+    const startX = points[0].x;
+    const startY = points[0].y;
+    const width = x - startX;
+    const height = y - startY;
+
+    this.ctx.beginPath();
+    this.ctx.rect(startX, startY, width, height);
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = color;
+    this.ctx.stroke();
+  }
 }

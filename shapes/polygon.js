@@ -23,4 +23,20 @@ export default class Polygon {
     this.ctx.fillStyle = color;
     this.ctx.fill();
   }
+
+  /**
+   * @param {Array<{x: number, y: number}>} points
+   * @param {number} x
+   * @param {number} y
+   * @param {string} color
+   * @returns {void}
+   */
+  drawPreview(points, x, y, color) {
+    this.ctx.beginPath();
+    this.ctx.moveTo(points[points.length - 1].x, points[points.length - 1].y);
+    this.ctx.lineTo(x, y);
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = color;
+    this.ctx.stroke();
+  }
 }
