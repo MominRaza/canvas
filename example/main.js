@@ -4,13 +4,18 @@ const canvas = document.getElementById('canvas');
 const colorPicker = document.getElementById('colorPicker');
 const gridSize = document.getElementById('gridSize');
 const showGrid = document.getElementById('showGrid');
-
-const drawer = new DrawCanvasShapes(canvas, colorPicker.value, false, parseInt(gridSize.value));
-
-drawer.drawings;
-
 const height = document.getElementById('height');
 const width = document.getElementById('width');
+
+const drawer = new DrawCanvasShapes({
+  canvas,
+  canvasHeight: height.value,
+  canvasWidth: width.value,
+  drawingColor: colorPicker.value,
+  showGrid: false,
+  gridSize: gridSize.value,
+});
+
 
 height.addEventListener('change', (event) => {
   drawer.setCanvasSize(parseInt(width.value), parseInt(event.target.value),);
