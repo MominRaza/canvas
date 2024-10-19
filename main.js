@@ -112,6 +112,16 @@ export default class DrawCanvasShapes {
     #crossIcon;
 
     /**
+     * @type {number | undefined}
+     */
+    #movingDrawingIndex;
+
+    /**
+     * @type {Point | undefined}
+     */
+    #movingStartPoint;
+
+    /**
      * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, gridColor: string, drawingType: string, showCrossIcon: boolean, drawings: Array<Drawing>, crossIconSize: number, clickThreshold: number, drawingMode: string}} options
      * @throws {Error}
      */
@@ -148,7 +158,6 @@ export default class DrawCanvasShapes {
     #init() {
         // @ts-ignore
         this.#ctx = this.#canvas.getContext('2d');
-        this.#canvas.style.cursor = 'crosshair';
         this.#points = [];
 
         this.#polygon = new Polygon(this.#ctx);
@@ -160,9 +169,20 @@ export default class DrawCanvasShapes {
         this.#redraw();
 
         this.#canvas.onclick = this.#canvasClick;
+
+        this.#canvas.onmouseenter = this.#canvasMouseEnter;
         this.#canvas.onmousedown = this.#canvasMouseDown;
         this.#canvas.onmousemove = this.#canvasMouseMove;
         this.#canvas.onmouseup = this.#canvasMouseUp;
+        this.#canvas.onmouseleave = this.#canvasMouseLeave;
+    }
+
+    #canvasMouseEnter = () => {
+        if (this.#drawingMode === 'draw') {
+            this.#canvas.style.cursor = 'crosshair';
+        } else {
+            this.#canvas.style.cursor = 'default';
+        }
     }
 
     #canvasClick = (event) => {
@@ -195,10 +215,6 @@ export default class DrawCanvasShapes {
         this.#redraw();
     }
 
-    /**
-     * @param {MouseEvent} event 
-     * @returns {void}
-     */
     #canvasMouseDown = (event) => {
         if (this.#drawingMode !== 'move') return;
         if (this.#drawings.length === 0) return;
@@ -207,24 +223,31 @@ export default class DrawCanvasShapes {
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
-        this.#drawings.forEach((drawing) => {
+        for (let i = this.#drawings.length - 1; i >= 0; i--) {
+            const drawing = this.#drawings[i];
             if (drawing.type === 'circle') {
                 const distance = Math.sqrt((x - drawing.points[0].x) ** 2 + (y - drawing.points[0].y) ** 2);
                 // @ts-ignore
                 if (distance <= drawing.radius) {
-                    this.#drawings = this.#drawings.filter((d) => d !== drawing);
+                    this.#movingDrawingIndex = i;
+                    this.#movingStartPoint = { x, y };
+                    this.#canvas.style.cursor = 'grabbing';
+                    break;
                 }
             }
-        });
+        }
     }
 
     #canvasMouseMove = (event) => {
-        if (this.#drawingMode !== 'draw') return;
-
         const rect = this.#canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
+        if (this.#drawingMode === 'draw') this.#drawModeMouseMove(x, y);
+        else if (this.#drawingMode === 'move') this.#moveModeMouseMove(x, y);
+    }
+
+    #drawModeMouseMove(x, y) {
         if (this.#points.length === 0) {
             this.#crossIcon.hover(this.#drawings, x, y);
         }
@@ -251,8 +274,53 @@ export default class DrawCanvasShapes {
         }
     }
 
-    #canvasMouseUp = (event) => {
+    #moveModeMouseMove(x, y) {
+        if (this.#movingDrawingIndex === undefined || this.#movingStartPoint === undefined) {
+            let cursorStyle = 'default';
 
+            for (let i = this.#drawings.length - 1; i >= 0; i--) {
+                const drawing = this.#drawings[i];
+                if (drawing.type === 'circle') {
+                    const distance = Math.sqrt((x - drawing.points[0].x) ** 2 + (y - drawing.points[0].y) ** 2);
+                    // @ts-ignore
+                    if (distance <= drawing.radius) {
+                        cursorStyle = 'grab';
+                        break;
+                    }
+                }
+            }
+
+            this.#canvas.style.cursor = cursorStyle;
+        } else {
+            const drawing = this.#drawings[this.#movingDrawingIndex];
+            const dx = x - this.#movingStartPoint.x;
+            const dy = y - this.#movingStartPoint.y;
+
+            drawing.points.forEach((point) => {
+                point.x += dx;
+                point.y += dy;
+            });
+
+            this.#movingStartPoint = { x, y };
+            this.#redraw();
+        }
+    }
+
+    #canvasMouseUp = () => {
+        if (this.#drawingMode !== 'move') return;
+        if (this.#movingDrawingIndex === undefined || this.#movingStartPoint === undefined) return;
+
+        this.#movingDrawingIndex = undefined;
+        this.#movingStartPoint = undefined;
+        this.#canvas.style.cursor = 'grab';
+    }
+
+    #canvasMouseLeave = () => {
+        if (this.#drawingMode !== 'move') return;
+        if (this.#movingDrawingIndex === undefined || this.#movingStartPoint === undefined) return;
+
+        this.#movingDrawingIndex = undefined;
+        this.#movingStartPoint = undefined;
     }
 
     /**
