@@ -1,3 +1,5 @@
+// @ts-check
+
 export default class Triangle {
   /**
    * @param {CanvasRenderingContext2D} ctx
@@ -7,7 +9,7 @@ export default class Triangle {
   }
 
   /**
-   * @param {{points: Array<{x: number, y: number}>, color: string, type: string}} drawing
+   * @param {import("../main").Drawing} drawing
    */
   draw({ points, color }) {
     const [start, end] = points;
@@ -24,7 +26,7 @@ export default class Triangle {
   // click() {}
 
   /**
-   * @param {Array<{x: number, y: number}>} points
+   * @param {Array<import("../main").Point>} points
    * @param {number} x
    * @param {number} y
    * @param {string} color

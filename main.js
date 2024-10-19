@@ -1,8 +1,24 @@
+// @ts-check
+
 import Polygon from './shapes/polygon.js';
 import Rectangle from './shapes/rectangle.js';
 import Circle from './shapes/circle.js';
 import Triangle from './shapes/triangle.js';
 import CrossIcon from './shapes/cross-icon.js';
+
+/**
+ * @typedef {Object} Point
+ * @property {number} x
+ * @property {number} y
+ */
+
+/**
+ * @typedef {Object} Drawing
+ * @property {Array<Point>} points
+ * @property {string} color
+ * @property {string} type
+ * @property {number} [radius]
+ */
 
 export default class DrawCanvasShapes {
     /**
@@ -16,12 +32,12 @@ export default class DrawCanvasShapes {
     #ctx;
 
     /**
-     * @type {Array<{x: number, y: number}>}
+     * @type {Array<Point>}
      */
     #points;
 
     /**
-     * @type {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>}
+     * @type {Array<Drawing>}
      */
     #drawings;
 
@@ -96,8 +112,7 @@ export default class DrawCanvasShapes {
     #crossIcon;
 
     /**
-     * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, gridColor: string, drawingType: string, showCrossIcon: boolean, drawings: Array<{points: Array<{x: number, y: number}>, color: string, type: string}>, crossIconSize: number, clickThreshold: number, drawingMode: string}} options
-     * @returns {void}
+     * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, gridColor: string, drawingType: string, showCrossIcon: boolean, drawings: Array<Drawing>, crossIconSize: number, clickThreshold: number, drawingMode: string}} options
      * @throws {Error}
      */
     constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, gridColor, drawingType, showCrossIcon, drawings, crossIconSize, clickThreshold, drawingMode }) {
@@ -131,10 +146,10 @@ export default class DrawCanvasShapes {
     }
 
     #init() {
+        // @ts-ignore
         this.#ctx = this.#canvas.getContext('2d');
         this.#canvas.style.cursor = 'crosshair';
         this.#points = [];
-        this.#redraw();
 
         this.#polygon = new Polygon(this.#ctx);
         this.#rectangle = new Rectangle(this.#ctx);
@@ -142,12 +157,17 @@ export default class DrawCanvasShapes {
         this.#triangle = new Triangle(this.#ctx);
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
 
+        this.#redraw();
+
         this.#canvas.onclick = this.#canvasClick;
-        this.#canvas.onmousemove = this.#canvasMouseMove;
         this.#canvas.onmousedown = this.#canvasMouseDown;
+        this.#canvas.onmousemove = this.#canvasMouseMove;
+        this.#canvas.onmouseup = this.#canvasMouseUp;
     }
 
     #canvasClick = (event) => {
+        if (this.#drawingMode !== 'draw') return;
+
         const rect = this.#canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
@@ -163,10 +183,11 @@ export default class DrawCanvasShapes {
                 this.#polygon.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#clickThreshold);
                 break;
             case 'rectangle':
-            case 'circle':
             case 'triangle':
                 this.#rectangle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
                 break;
+            case 'circle':
+                this.#circle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
             default:
                 break;
         }
@@ -174,7 +195,32 @@ export default class DrawCanvasShapes {
         this.#redraw();
     }
 
+    /**
+     * @param {MouseEvent} event 
+     * @returns {void}
+     */
+    #canvasMouseDown = (event) => {
+        if (this.#drawingMode !== 'move') return;
+        if (this.#drawings.length === 0) return;
+
+        const rect = this.#canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        this.#drawings.forEach((drawing) => {
+            if (drawing.type === 'circle') {
+                const distance = Math.sqrt((x - drawing.points[0].x) ** 2 + (y - drawing.points[0].y) ** 2);
+                // @ts-ignore
+                if (distance <= drawing.radius) {
+                    this.#drawings = this.#drawings.filter((d) => d !== drawing);
+                }
+            }
+        });
+    }
+
     #canvasMouseMove = (event) => {
+        if (this.#drawingMode !== 'draw') return;
+
         const rect = this.#canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
@@ -205,13 +251,13 @@ export default class DrawCanvasShapes {
         }
     }
 
-    #canvasMouseDown = (event) => {
+    #canvasMouseUp = (event) => {
 
     }
 
     /**
-     * @param {string} width
-     * @param {string} height
+     * @param {number} width
+     * @param {number} height
      * @returns {void}
      */
     setCanvasSize(width, height) {
@@ -351,7 +397,7 @@ export default class DrawCanvasShapes {
     }
 
     /**
-     * @returns {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>}
+     * @returns {Array<Drawing>}
      */
     getDrawings() {
         return this.#drawings;

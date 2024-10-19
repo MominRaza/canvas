@@ -20,6 +20,16 @@ const drawer = new DrawCanvasShapes({
   gridSize: gridSize.value,
   drawingType: drawType.value,
   drawingMode: drawMode.value,
+  drawings: [
+    {
+      points: [
+        { x: 100, y: 100 },
+      ],
+      radius: 20,
+      color: '#000000',
+      type: 'circle',
+    }
+  ],
 });
 
 height.addEventListener('change', (event) => {
@@ -52,4 +62,8 @@ cancelButton.addEventListener('click', () => {
 
 clearButton.addEventListener('click', () => {
   drawer.clearCanvas();
+});
+
+drawMode.addEventListener('change', (event) => {
+  drawer.setDrawingMode(event.target.value);
 });

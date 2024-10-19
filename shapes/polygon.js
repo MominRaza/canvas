@@ -1,3 +1,5 @@
+// @ts-check
+
 export default class Polygon {
   /**
    * @param {CanvasRenderingContext2D} ctx
@@ -7,7 +9,7 @@ export default class Polygon {
   }
 
   /**
-   * @param {{points: Array<{x: number, y: number}>, color: string, type: string}} drawing
+   * @param {import("../main").Drawing} drawing
    */
   draw({ points, color }) {
     if (points.length < 2) return;
@@ -25,8 +27,8 @@ export default class Polygon {
   }
 
   /**
-   * @param {Array<{x: number, y: number}>} points
-   * @param {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>} drawings
+   * @param {Array<import("../main").Point>} points
+   * @param {Array<import("../main").Drawing>} drawings
    * @param {number} x
    * @param {number} y
    * @param {string} color
@@ -46,7 +48,7 @@ export default class Polygon {
   }
 
   /**
-   * @param {Array<{x: number, y: number}>} points
+   * @param {Array<import("../main").Point>} points
    * @param {number} x
    * @param {number} y
    * @param {string} color

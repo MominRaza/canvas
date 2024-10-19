@@ -1,3 +1,5 @@
+// @ts-check
+
 export default class CrossIcon {
   /**
    * @param {CanvasRenderingContext2D} ctx
@@ -11,18 +13,17 @@ export default class CrossIcon {
   }
 
   /**
-  * @param {{points: Array<{x: number, y: number}>, color: string, type: string}} drawing
+  * @param {import("../main").Drawing} drawing
   * @returns {void}
   */
   draw(drawing) {
     if (!this.showCrossIcon) return;
-    const { points, color, type } = drawing;
-    const { x, y } = this.#topRightPoint(points, type);
+    const { x, y } = this.#topRightPoint(drawing);
     this.ctx.beginPath();
     this.ctx.arc(x, y, this.crossIconSize, 0, 2 * Math.PI);
     this.ctx.fillStyle = 'white';
     this.ctx.fill();
-    this.ctx.strokeStyle = color;
+    this.ctx.strokeStyle = drawing.color;
     this.ctx.stroke();
 
     this.ctx.beginPath();
@@ -34,11 +35,10 @@ export default class CrossIcon {
   }
 
   /**
-   * @param {Array<{x: number, y: number}>} points
-   * @param {string} type
-   * @returns {{x: number, y: number}}
+   * @param {import("../main").Drawing} drawing
+   * @returns {import("../main").Point}
    */
-  #topRightPoint(points, type) {
+  #topRightPoint({ points, type, radius }) {
     if (type === 'rectangle') {
       const [start, end] = points;
       return {
@@ -49,11 +49,11 @@ export default class CrossIcon {
 
     if (type === 'circle') {
       const start = points[0];
-      const end = points[1];
-      const radius = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
       const angle = Math.PI / 4;
       return {
+        // @ts-ignore
         x: start.x + radius * Math.cos(angle),
+        // @ts-ignore
         y: start.y - radius * Math.sin(angle)
       };
     }
@@ -79,7 +79,7 @@ export default class CrossIcon {
   }
 
   /**
-   * @param {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>} drawings
+   * @param {Array<import("../main").Drawing>} drawings
    * @param {number} x
    * @param {number} y
    * @returns {boolean}
@@ -88,8 +88,7 @@ export default class CrossIcon {
     if (!this.showCrossIcon) return false;
 
     for (let i = drawings.length - 1; i >= 0; i--) {
-      const { points, type } = drawings[i];
-      const topRight = this.#topRightPoint(points, type);
+      const topRight = this.#topRightPoint(drawings[i]);
 
       if (Math.abs(x - topRight.x) < this.crossIconSize * 1.2 && Math.abs(y - topRight.y) < this.crossIconSize * 1.2) {
         drawings.splice(i, 1);
@@ -102,7 +101,7 @@ export default class CrossIcon {
   }
 
   /**
-   * @param {Array<{points: Array<{x: number, y: number}>, color: string, type: string}>} drawings
+   * @param {Array<import("../main").Drawing>} drawings
    * @param {number} x
    * @param {number} y
    * @returns {void}
@@ -113,8 +112,8 @@ export default class CrossIcon {
     let cursorStyle = 'crosshair';
 
     for (let i = drawings.length - 1; i >= 0; i--) {
-      const { points, type } = drawings[i];
-      const topRight = this.#topRightPoint(points, type);
+      const topRight = this.#topRightPoint(drawings[i]);
+
       if (Math.abs(x - topRight.x) < this.crossIconSize * 1.2 && Math.abs(y - topRight.y) < this.crossIconSize * 1.2) {
         cursorStyle = 'pointer';
         break;

@@ -1,3 +1,5 @@
+// @ts-check
+
 export default class Circle {
   /**
    * @param {CanvasRenderingContext2D} ctx
@@ -7,23 +9,39 @@ export default class Circle {
   }
 
   /**
-   * @param {{points: Array<{x: number, y: number}>, color: string, type: string}} drawing
+   * @param {import("../main").Drawing} drawing
    */
-  draw({ points, color }) {
-    const [start, end] = points;
-    const radius = Math.sqrt((end.x - start.x) ** 2 + (end.y - start.y) ** 2);
-    const { x, y } = start;
+  draw({ points, color, radius }) {
+    const { x, y } = points[0];
     this.ctx.beginPath();
+    // @ts-ignore
     this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
     this.ctx.fillStyle = color;
     this.ctx.fill();
   }
 
-  // Same as Rectangle
-  // click() { }
+  /**
+   * @param {Array<import("../main").Point>} points
+   * @param {Array<import("../main").Drawing>} drawings
+   * @param {number} x
+   * @param {number} y
+   * @param {string} color
+   * @param {string} drawType
+   * @returns {void}
+   */
+  click(points, drawings, x, y, color, drawType) {
+    if (points.length === 0) {
+      points.push({ x, y });
+    } else {
+      const start = points[0];
+      const radius = Math.sqrt((x - start.x) ** 2 + (y - start.y) ** 2);
+      drawings.push({ points: [{ x: start.x, y: start.y }], color, type: drawType, radius });
+      points.length = 0;
+    }
+  }
 
   /**
-   * @param {Array<{x: number, y: number}>} points
+   * @param {Array<import("../main").Point>} points
    * @param {number} x
    * @param {number} y
    * @param {string} color
