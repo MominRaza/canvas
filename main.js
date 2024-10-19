@@ -177,14 +177,6 @@ export default class DrawCanvasShapes {
         this.#canvas.onmouseleave = this.#canvasMouseLeave;
     }
 
-    #canvasMouseEnter = () => {
-        if (this.#drawingMode === 'draw') {
-            this.#canvas.style.cursor = 'crosshair';
-        } else {
-            this.#canvas.style.cursor = 'default';
-        }
-    }
-
     #canvasClick = (event) => {
         if (this.#drawingMode !== 'draw') return;
 
@@ -216,6 +208,14 @@ export default class DrawCanvasShapes {
         }
 
         this.#redraw();
+    }
+
+    #canvasMouseEnter = () => {
+        if (this.#drawingMode === 'draw') {
+            this.#canvas.style.cursor = 'crosshair';
+        } else {
+            this.#canvas.style.cursor = 'default';
+        }
     }
 
     #canvasMouseDown = (event) => {
@@ -302,13 +302,6 @@ export default class DrawCanvasShapes {
         }
     }
 
-    #isPointInside = (drawing, { x, y }) =>
-        (drawing.type === 'circle' && this.#circle.isPointInside(drawing, { x, y }))
-        ||
-        (drawing.type === 'rectangle' && this.#rectangle.isPointInside(drawing, { x, y }))
-        ||
-        (drawing.type === 'triangle' && this.#triangle.isPointInside(drawing, { x, y }));
-
     #canvasMouseUp = () => {
         if (this.#drawingMode !== 'move') return;
         if (this.#movingDrawingIndex === undefined || this.#movingStartPoint === undefined) return;
@@ -325,6 +318,78 @@ export default class DrawCanvasShapes {
         this.#movingDrawingIndex = undefined;
         this.#movingStartPoint = undefined;
     }
+
+    #isPointInside(drawing, { x, y }) {
+        return (
+            (drawing.type === 'circle'
+                && this.#circle.isPointInside(drawing, { x, y }))
+            ||
+            (drawing.type === 'rectangle'
+                && this.#rectangle.isPointInside(drawing, { x, y }))
+            ||
+            (drawing.type === 'triangle'
+                && this.#triangle.isPointInside(drawing, { x, y }))
+        );
+    }
+
+    #drawGrid() {
+        if (!this.#showGrid) return;
+        if (this.#gridSize <= 0) throw new Error('Grid size must be greater than 0');
+
+        this.#ctx.beginPath();
+        for (let x = 0; x <= this.#canvas.width; x += this.#gridSize) {
+            this.#ctx.moveTo(x, 0);
+            this.#ctx.lineTo(x, this.#canvas.height);
+        }
+
+        for (let y = 0; y <= this.#canvas.height; y += this.#gridSize) {
+            this.#ctx.moveTo(0, y);
+            this.#ctx.lineTo(this.#canvas.width, y);
+        }
+
+        this.#ctx.strokeStyle = this.#gridColor;
+        this.#ctx.stroke();
+    }
+
+    #redraw() {
+        this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+        this.#drawGrid();
+        this.#drawShapes();
+        if (this.#points.length > 1) {
+            this.#ctx.beginPath();
+            for (let i = 1; i < this.#points.length; i++) {
+                this.#ctx.moveTo(this.#points[i - 1].x, this.#points[i - 1].y);
+                this.#ctx.lineTo(this.#points[i].x, this.#points[i].y);
+            }
+            this.#ctx.strokeStyle = this.#drawingColor;
+            this.#ctx.stroke();
+        }
+    }
+
+    #drawShapes() {
+        this.#drawings.forEach((drawing) => {
+            switch (drawing.type) {
+                case 'polygon':
+                    this.#polygon.draw(drawing);
+                    break;
+                case 'rectangle':
+                    this.#rectangle.draw(drawing);
+                    break;
+                case 'circle':
+                    this.#circle.draw(drawing);
+                    break;
+                case 'triangle':
+                    this.#triangle.draw(drawing);
+                    break;
+                default:
+                    break;
+            }
+            this.#crossIcon.draw(drawing);
+        });
+    }
+
+
+    // Public setters and getters
 
     /**
      * @param {number} width
@@ -385,69 +450,6 @@ export default class DrawCanvasShapes {
             throw new Error('Invalid draw mode');
         }
         this.#drawingMode = mode;
-    }
-
-    /**
-     * @returns {void}
-     * @throws {Error}
-     */
-    #drawGrid() {
-        if (!this.#showGrid) return;
-        if (this.#gridSize <= 0) throw new Error('Grid size must be greater than 0');
-
-        this.#ctx.beginPath();
-        for (let x = 0; x <= this.#canvas.width; x += this.#gridSize) {
-            this.#ctx.moveTo(x, 0);
-            this.#ctx.lineTo(x, this.#canvas.height);
-        }
-
-        for (let y = 0; y <= this.#canvas.height; y += this.#gridSize) {
-            this.#ctx.moveTo(0, y);
-            this.#ctx.lineTo(this.#canvas.width, y);
-        }
-
-        this.#ctx.strokeStyle = this.#gridColor;
-        this.#ctx.stroke();
-    }
-
-    /**
-     * @returns {void}
-     */
-    #redraw() {
-        this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
-        this.#drawGrid();
-        this.#drawShapes();
-        if (this.#points.length > 1) {
-            this.#ctx.beginPath();
-            for (let i = 1; i < this.#points.length; i++) {
-                this.#ctx.moveTo(this.#points[i - 1].x, this.#points[i - 1].y);
-                this.#ctx.lineTo(this.#points[i].x, this.#points[i].y);
-            }
-            this.#ctx.strokeStyle = this.#drawingColor;
-            this.#ctx.stroke();
-        }
-    }
-
-    #drawShapes() {
-        this.#drawings.forEach((drawing) => {
-            switch (drawing.type) {
-                case 'polygon':
-                    this.#polygon.draw(drawing);
-                    break;
-                case 'rectangle':
-                    this.#rectangle.draw(drawing);
-                    break;
-                case 'circle':
-                    this.#circle.draw(drawing);
-                    break;
-                case 'triangle':
-                    this.#triangle.draw(drawing);
-                    break;
-                default:
-                    break;
-            }
-            this.#crossIcon.draw(drawing);
-        });
     }
 
     /**
