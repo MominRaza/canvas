@@ -56,4 +56,14 @@ export default class Circle {
     this.ctx.strokeStyle = color;
     this.ctx.stroke();
   }
+
+  /**
+   * @param {import("../main").Drawing} drawing
+   * @param {import("../main").Point} point
+   * @returns {boolean}
+   */
+  isPointInside({ points: [center], radius }, { x, y }) {
+    // @ts-ignore
+    return Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2) <= radius;
+  }
 }

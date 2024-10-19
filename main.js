@@ -229,34 +229,21 @@ export default class DrawCanvasShapes {
         for (let i = this.#drawings.length - 1; i >= 0; i--) {
             const drawing = this.#drawings[i];
             if (drawing.type === 'circle') {
-                const distance = Math.sqrt((x - drawing.points[0].x) ** 2 + (y - drawing.points[0].y) ** 2);
-                // @ts-ignore
-                if (distance <= drawing.radius) {
+                if (this.#circle.isPointInside(drawing, { x, y })) {
                     this.#movingDrawingIndex = i;
                     this.#movingStartPoint = { x, y };
                     this.#canvas.style.cursor = 'grabbing';
                     break;
                 }
             } else if (drawing.type === 'rectangle') {
-                let { x: x1, y: y1 } = drawing.points[0];
-                let { x: x2, y: y2 } = drawing.points[1];
-
-                if (x1 > x2) [x1, x2] = [x2, x1];
-                if (y1 > y2) [y1, y2] = [y2, y1];
-
-                if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+                if (this.#rectangle.isPointInside(drawing, { x, y })) {
                     this.#movingDrawingIndex = i;
                     this.#movingStartPoint = { x, y };
                     this.#canvas.style.cursor = 'grabbing';
                     break;
                 }
             } else if (drawing.type === 'triangle') {
-                const [p1, p2, p3] = drawing.points;
-                const a = (p1.x - x) * (p2.y - p1.y) - (p2.x - p1.x) * (p1.y - y);
-                const b = (p2.x - x) * (p3.y - p2.y) - (p3.x - p2.x) * (p2.y - y);
-                const c = (p3.x - x) * (p1.y - p3.y) - (p1.x - p3.x) * (p3.y - y);
-
-                if ((a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0)) {
+                if (this.#triangle.isPointInside(drawing, { x, y })) {
                     this.#movingDrawingIndex = i;
                     this.#movingStartPoint = { x, y };
                     this.#canvas.style.cursor = 'grabbing';
@@ -309,30 +296,17 @@ export default class DrawCanvasShapes {
             for (let i = this.#drawings.length - 1; i >= 0; i--) {
                 const drawing = this.#drawings[i];
                 if (drawing.type === 'circle') {
-                    const distance = Math.sqrt((x - drawing.points[0].x) ** 2 + (y - drawing.points[0].y) ** 2);
-                    // @ts-ignore
-                    if (distance <= drawing.radius) {
+                    if (this.#circle.isPointInside(drawing, { x, y })) {
                         cursorStyle = 'grab';
                         break;
                     }
                 } else if (drawing.type === 'rectangle') {
-                    let { x: x1, y: y1 } = drawing.points[0];
-                    let { x: x2, y: y2 } = drawing.points[1];
-
-                    if (x1 > x2) [x1, x2] = [x2, x1];
-                    if (y1 > y2) [y1, y2] = [y2, y1];
-
-                    if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+                    if (this.#rectangle.isPointInside(drawing, { x, y })) {
                         cursorStyle = 'grab';
                         break;
                     }
                 } else if (drawing.type === 'triangle') {
-                    const [p1, p2, p3] = drawing.points;
-                    const a = (p1.x - x) * (p2.y - p1.y) - (p2.x - p1.x) * (p1.y - y);
-                    const b = (p2.x - x) * (p3.y - p2.y) - (p3.x - p2.x) * (p2.y - y);
-                    const c = (p3.x - x) * (p1.y - p3.y) - (p1.x - p3.x) * (p3.y - y);
-
-                    if ((a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0)) {
+                    if (this.#triangle.isPointInside(drawing, { x, y })) {
                         cursorStyle = 'grab';
                         break;
                     }

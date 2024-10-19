@@ -58,4 +58,19 @@ export default class Rectangle {
     this.ctx.strokeStyle = color;
     this.ctx.stroke();
   }
+
+  /**
+   * @param {import("../main").Drawing} drawing
+   * @param {import("../main").Point} point
+   * @returns {boolean}
+   */
+  isPointInside({ points: [start, end] }, { x, y }) {
+    let { x: x1, y: y1 } = start;
+    let { x: x2, y: y2 } = end;
+
+    if (x1 > x2) [x1, x2] = [x2, x1];
+    if (y1 > y2) [y1, y2] = [y2, y1];
+
+    return x >= x1 && x <= x2 && y >= y1 && y <= y2;
+  }
 }
