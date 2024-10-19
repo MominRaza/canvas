@@ -203,11 +203,14 @@ export default class DrawCanvasShapes {
                 this.#polygon.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#clickThreshold);
                 break;
             case 'rectangle':
-            case 'triangle':
                 this.#rectangle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
+                break;
+            case 'triangle':
+                this.#triangle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
                 break;
             case 'circle':
                 this.#circle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
+                break;
             default:
                 break;
         }
@@ -242,6 +245,18 @@ export default class DrawCanvasShapes {
                 if (y1 > y2) [y1, y2] = [y2, y1];
 
                 if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+                    this.#movingDrawingIndex = i;
+                    this.#movingStartPoint = { x, y };
+                    this.#canvas.style.cursor = 'grabbing';
+                    break;
+                }
+            } else if (drawing.type === 'triangle') {
+                const [p1, p2, p3] = drawing.points;
+                const a = (p1.x - x) * (p2.y - p1.y) - (p2.x - p1.x) * (p1.y - y);
+                const b = (p2.x - x) * (p3.y - p2.y) - (p3.x - p2.x) * (p2.y - y);
+                const c = (p3.x - x) * (p1.y - p3.y) - (p1.x - p3.x) * (p3.y - y);
+
+                if ((a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0)) {
                     this.#movingDrawingIndex = i;
                     this.#movingStartPoint = { x, y };
                     this.#canvas.style.cursor = 'grabbing';
@@ -308,6 +323,16 @@ export default class DrawCanvasShapes {
                     if (y1 > y2) [y1, y2] = [y2, y1];
 
                     if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+                        cursorStyle = 'grab';
+                        break;
+                    }
+                } else if (drawing.type === 'triangle') {
+                    const [p1, p2, p3] = drawing.points;
+                    const a = (p1.x - x) * (p2.y - p1.y) - (p2.x - p1.x) * (p1.y - y);
+                    const b = (p2.x - x) * (p3.y - p2.y) - (p3.x - p2.x) * (p2.y - y);
+                    const c = (p3.x - x) * (p1.y - p3.y) - (p1.x - p3.x) * (p3.y - y);
+
+                    if ((a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0)) {
                         cursorStyle = 'grab';
                         break;
                     }

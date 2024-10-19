@@ -12,18 +12,35 @@ export default class Triangle {
    * @param {import("../main").Drawing} drawing
    */
   draw({ points, color }) {
-    const [start, end] = points;
     this.ctx.beginPath();
-    this.ctx.moveTo(start.x, start.y);
-    this.ctx.lineTo(end.x, end.y);
-    this.ctx.lineTo(start.x - (end.x - start.x), end.y);
+    points.forEach(({ x, y }, index) => {
+      index === 0 ? this.ctx.moveTo(x, y) : this.ctx.lineTo(x, y);
+    });
     this.ctx.closePath();
     this.ctx.fillStyle = color;
     this.ctx.fill();
   }
 
-  // Same as Rectangle
-  // click() {}
+  /**
+   * @param {Array<import("../main").Point>} points
+   * @param {Array<import("../main").Drawing>} drawings
+   * @param {number} x
+   * @param {number} y
+   * @param {string} color
+   * @param {string} drawType
+   * @returns {void}
+   */
+  click(points, drawings, x, y, color, drawType) {
+    points.push({ x, y });
+    if (points.length === 2) {
+      const thirdPoint = {
+        x: points[0].x - (points[1].x - points[0].x),
+        y: points[1].y
+      };
+      drawings.push({ points: [...points, thirdPoint], color, type: drawType });
+      points.length = 0;
+    }
+  }
 
   /**
    * @param {Array<import("../main").Point>} points

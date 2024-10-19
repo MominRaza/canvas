@@ -41,6 +41,7 @@ const drawer = new DrawCanvasShapes({
       points: [
         { x: 250, y: 100 },
         { x: 300, y: 200 },
+        { x: 200, y: 200 },
       ],
       color: '#00ff0090',
       type: 'triangle',
