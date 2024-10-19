@@ -228,27 +228,11 @@ export default class DrawCanvasShapes {
 
         for (let i = this.#drawings.length - 1; i >= 0; i--) {
             const drawing = this.#drawings[i];
-            if (drawing.type === 'circle') {
-                if (this.#circle.isPointInside(drawing, { x, y })) {
-                    this.#movingDrawingIndex = i;
-                    this.#movingStartPoint = { x, y };
-                    this.#canvas.style.cursor = 'grabbing';
-                    break;
-                }
-            } else if (drawing.type === 'rectangle') {
-                if (this.#rectangle.isPointInside(drawing, { x, y })) {
-                    this.#movingDrawingIndex = i;
-                    this.#movingStartPoint = { x, y };
-                    this.#canvas.style.cursor = 'grabbing';
-                    break;
-                }
-            } else if (drawing.type === 'triangle') {
-                if (this.#triangle.isPointInside(drawing, { x, y })) {
-                    this.#movingDrawingIndex = i;
-                    this.#movingStartPoint = { x, y };
-                    this.#canvas.style.cursor = 'grabbing';
-                    break;
-                }
+            if (this.#isPointInside(drawing, { x, y })) {
+                this.#movingDrawingIndex = i;
+                this.#movingStartPoint = { x, y };
+                this.#canvas.style.cursor = 'grabbing';
+                break;
             }
         }
     }
@@ -295,21 +279,10 @@ export default class DrawCanvasShapes {
 
             for (let i = this.#drawings.length - 1; i >= 0; i--) {
                 const drawing = this.#drawings[i];
-                if (drawing.type === 'circle') {
-                    if (this.#circle.isPointInside(drawing, { x, y })) {
-                        cursorStyle = 'grab';
-                        break;
-                    }
-                } else if (drawing.type === 'rectangle') {
-                    if (this.#rectangle.isPointInside(drawing, { x, y })) {
-                        cursorStyle = 'grab';
-                        break;
-                    }
-                } else if (drawing.type === 'triangle') {
-                    if (this.#triangle.isPointInside(drawing, { x, y })) {
-                        cursorStyle = 'grab';
-                        break;
-                    }
+
+                if (this.#isPointInside(drawing, { x, y })) {
+                    cursorStyle = 'grab';
+                    break;
                 }
             }
 
@@ -328,6 +301,13 @@ export default class DrawCanvasShapes {
             this.#redraw();
         }
     }
+
+    #isPointInside = (drawing, { x, y }) =>
+        (drawing.type === 'circle' && this.#circle.isPointInside(drawing, { x, y }))
+        ||
+        (drawing.type === 'rectangle' && this.#rectangle.isPointInside(drawing, { x, y }))
+        ||
+        (drawing.type === 'triangle' && this.#triangle.isPointInside(drawing, { x, y }));
 
     #canvasMouseUp = () => {
         if (this.#drawingMode !== 'move') return;
