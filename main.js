@@ -234,6 +234,15 @@ export default class DrawCanvasShapes {
                     this.#canvas.style.cursor = 'grabbing';
                     break;
                 }
+            } else if (drawing.type === 'rectangle') {
+                const { x: x1, y: y1 } = drawing.points[0];
+                const { x: x2, y: y2 } = drawing.points[1];
+                if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
+                    this.#movingDrawingIndex = i;
+                    this.#movingStartPoint = { x, y };
+                    this.#canvas.style.cursor = 'grabbing';
+                    break;
+                }
             }
         }
     }
@@ -284,6 +293,13 @@ export default class DrawCanvasShapes {
                     const distance = Math.sqrt((x - drawing.points[0].x) ** 2 + (y - drawing.points[0].y) ** 2);
                     // @ts-ignore
                     if (distance <= drawing.radius) {
+                        cursorStyle = 'grab';
+                        break;
+                    }
+                } else if (drawing.type === 'rectangle') {
+                    const { x: x1, y: y1 } = drawing.points[0];
+                    const { x: x2, y: y2 } = drawing.points[1];
+                    if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
                         cursorStyle = 'grab';
                         break;
                     }

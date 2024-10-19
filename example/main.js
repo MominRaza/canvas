@@ -23,11 +23,39 @@ const drawer = new DrawCanvasShapes({
   drawings: [
     {
       points: [
-        { x: 100, y: 100 },
+        { x: 50, y: 50 },
       ],
-      radius: 20,
-      color: '#000000',
+      radius: 40,
+      color: '#00000090',
       type: 'circle',
+    },
+    {
+      points: [
+        { x: 100, y: 50 },
+        { x: 200, y: 150 },
+      ],
+      color: '#ff000090',
+      type: 'rectangle',
+    },
+    {
+      points: [
+        { x: 250, y: 100 },
+        { x: 300, y: 200 },
+      ],
+      color: '#00ff0090',
+      type: 'triangle',
+    },
+    {
+      points: [
+        { x: 400, y: 150 },
+        { x: 450, y: 175 },
+        { x: 450, y: 225 },
+        { x: 400, y: 250 },
+        { x: 350, y: 225 },
+        { x: 350, y: 175 },
+      ],
+      color: '#0000ff90',
+      type: 'polygon',
     }
   ],
 });
