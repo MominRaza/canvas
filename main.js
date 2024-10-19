@@ -235,8 +235,12 @@ export default class DrawCanvasShapes {
                     break;
                 }
             } else if (drawing.type === 'rectangle') {
-                const { x: x1, y: y1 } = drawing.points[0];
-                const { x: x2, y: y2 } = drawing.points[1];
+                let { x: x1, y: y1 } = drawing.points[0];
+                let { x: x2, y: y2 } = drawing.points[1];
+
+                if (x1 > x2) [x1, x2] = [x2, x1];
+                if (y1 > y2) [y1, y2] = [y2, y1];
+
                 if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
                     this.#movingDrawingIndex = i;
                     this.#movingStartPoint = { x, y };
@@ -297,8 +301,12 @@ export default class DrawCanvasShapes {
                         break;
                     }
                 } else if (drawing.type === 'rectangle') {
-                    const { x: x1, y: y1 } = drawing.points[0];
-                    const { x: x2, y: y2 } = drawing.points[1];
+                    let { x: x1, y: y1 } = drawing.points[0];
+                    let { x: x2, y: y2 } = drawing.points[1];
+
+                    if (x1 > x2) [x1, x2] = [x2, x1];
+                    if (y1 > y2) [y1, y2] = [y2, y1];
+
                     if (x >= x1 && x <= x2 && y >= y1 && y <= y2) {
                         cursorStyle = 'grab';
                         break;
