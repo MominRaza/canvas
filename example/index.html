@@ -17,10 +17,10 @@
         <option value="triangle">Triangle</option>
     </select>
     <select id="colorPicker">
-        <option value="black">Black</option>
-        <option value="red">Red</option>
-        <option value="blue">Blue</option>
-        <option value="green">Green</option>
+        <option value="#00000090">Black</option>
+        <option value="#ff000090">Red</option>
+        <option value="#0000ff90">Blue</option>
+        <option value="#00800090">Green</option>
     </select>
     <button id="cancelButton">Cancel</button>
     <button id="clearButton">Clear</button>
@@ -31,6 +31,10 @@
         <option value="40">40x40</option>
     </select>
     <input type="checkbox" id="showGrid">Show Grid</input>
+    <select id="drawMode">
+        <option value="draw">Draw</option>
+        <option value="move">Move</option>
+    </select>
     <br>
     <input type="number" id="height" value="300"> x <input type="number" id="width" value="497">
     <canvas id="canvas"></canvas>

@@ -28,12 +28,7 @@ export default class DrawCanvasShapes {
     /**
      * @type {boolean}
      */
-    #isDrawing
-
-    /**
-     * @type {boolean}
-     */
-    #isGridVisible;
+    #showGrid;
 
     /**
      * @type {number}
@@ -66,6 +61,11 @@ export default class DrawCanvasShapes {
     #drawingColor;
 
     /**
+     * @type {string}
+     */
+    #drawingMode;
+
+    /**
      * @type {boolean}
      */
     #showCrossIcon;
@@ -96,29 +96,37 @@ export default class DrawCanvasShapes {
     #crossIcon;
 
     /**
-     * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, gridColor: string, drawingType: string, showCrossIcon: boolean, drawings: Array<{points: Array<{x: number, y: number}>, color: string, type: string}>, crossIconSize: number, clickThreshold: number}} options
+     * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, gridColor: string, drawingType: string, showCrossIcon: boolean, drawings: Array<{points: Array<{x: number, y: number}>, color: string, type: string}>, crossIconSize: number, clickThreshold: number, drawingMode: string}} options
      * @returns {void}
      * @throws {Error}
      */
-    constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, gridColor, drawingType, showCrossIcon, drawings, crossIconSize, clickThreshold }) {
+    constructor({ canvas, canvasHeight, canvasWidth, drawingColor, showGrid, gridSize, gridColor, drawingType, showCrossIcon, drawings, crossIconSize, clickThreshold, drawingMode }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
         if (drawingType && !['polygon', 'rectangle', 'circle', 'triangle'].includes(drawingType)) {
             throw new Error('Invalid draw type');
+        }
+        if (drawingMode && !['draw', 'move'].includes(drawingMode)) {
+            throw new Error('Invalid draw mode');
         }
 
         this.#canvas = canvas;
         this.#canvas.height = canvasHeight ?? 300;
         this.#canvas.width = canvasWidth ?? 497;
-        this.#drawings = drawings ?? [];
-        this.#isDrawing = true;
-        this.#isGridVisible = showGrid ?? false;
+
         this.#gridSize = gridSize ?? 20;
         this.#gridColor = gridColor ?? '#ddd';
-        this.#crossIconSize = crossIconSize ?? 10;
-        this.#clickThreshold = clickThreshold ?? 20;
+        this.#showGrid = showGrid ?? false;
+
+        this.#drawings = drawings ?? [];
         this.#drawingType = drawingType ?? 'polygon';
         this.#drawingColor = drawingColor ?? '#000';
+        this.#drawingMode = drawingMode ?? 'draw';
+
+        this.#crossIconSize = crossIconSize ?? 10;
         this.#showCrossIcon = showCrossIcon ?? true;
+
+        this.#clickThreshold = clickThreshold ?? 20;
+
         this.#init();
     }
 
@@ -134,63 +142,71 @@ export default class DrawCanvasShapes {
         this.#triangle = new Triangle(this.#ctx);
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
 
-        this.#canvas.addEventListener('click', (event) => {
-            const rect = this.#canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+        this.#canvas.onclick = this.#canvasClick;
+        this.#canvas.onmousemove = this.#canvasMouseMove;
+        this.#canvas.onmousedown = this.#canvasMouseDown;
+    }
 
-            if (this.#points.length === 0) {
-                const removed = this.#crossIcon.click(this.#drawings, x, y);
+    #canvasClick = (event) => {
+        const rect = this.#canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
 
-                if (removed) return this.#redraw();
-            }
+        if (this.#points.length === 0) {
+            const removed = this.#crossIcon.click(this.#drawings, x, y);
 
-            switch (this.#drawingType) {
-                case 'polygon':
-                    this.#polygon.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#clickThreshold);
-                    break;
-                case 'rectangle':
-                case 'circle':
-                case 'triangle':
-                    this.#rectangle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
-                    break;
-                default:
-                    break;
-            }
+            if (removed) return this.#redraw();
+        }
 
-            this.#redraw();
-        });
+        switch (this.#drawingType) {
+            case 'polygon':
+                this.#polygon.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#clickThreshold);
+                break;
+            case 'rectangle':
+            case 'circle':
+            case 'triangle':
+                this.#rectangle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
+                break;
+            default:
+                break;
+        }
 
-        this.#canvas.addEventListener('mousemove', (event) => {
-            const rect = this.#canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
+        this.#redraw();
+    }
 
-            if (this.#points.length === 0) {
-                this.#crossIcon.hover(this.#drawings, x, y);
-            }
+    #canvasMouseMove = (event) => {
+        const rect = this.#canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
 
-            if (this.#points.length === 0) return;
+        if (this.#points.length === 0) {
+            this.#crossIcon.hover(this.#drawings, x, y);
+        }
 
-            this.#redraw();
+        if (this.#points.length === 0) return;
 
-            switch (this.#drawingType) {
-                case 'polygon':
-                    this.#polygon.drawPreview(this.#points, x, y, this.#drawingColor);
-                    break;
-                case 'rectangle':
-                    this.#rectangle.drawPreview(this.#points, x, y, this.#drawingColor);
-                    break;
-                case 'circle':
-                    this.#circle.drawPreview(this.#points, x, y, this.#drawingColor);
-                    break;
-                case 'triangle':
-                    this.#triangle.drawPreview(this.#points, x, y, this.#drawingColor);
-                    break;
-                default:
-                    break;
-            }
-        });
+        this.#redraw();
+
+        switch (this.#drawingType) {
+            case 'polygon':
+                this.#polygon.drawPreview(this.#points, x, y, this.#drawingColor);
+                break;
+            case 'rectangle':
+                this.#rectangle.drawPreview(this.#points, x, y, this.#drawingColor);
+                break;
+            case 'circle':
+                this.#circle.drawPreview(this.#points, x, y, this.#drawingColor);
+                break;
+            case 'triangle':
+                this.#triangle.drawPreview(this.#points, x, y, this.#drawingColor);
+                break;
+            default:
+                break;
+        }
+    }
+
+    #canvasMouseDown = (event) => {
+
     }
 
     /**
@@ -214,11 +230,11 @@ export default class DrawCanvasShapes {
     }
 
     /**
-     * @param {boolean} isVisible
+     * @param {boolean} show
      * @returns {void}
      */
-    toggleGrid(isVisible) {
-        this.#isGridVisible = isVisible;
+    setShowGrid(show) {
+        this.#showGrid = show;
         this.#redraw();
     }
 
@@ -243,11 +259,23 @@ export default class DrawCanvasShapes {
     }
 
     /**
+     * @param {string} mode
+     * @returns {void}
+     * @throws {Error}
+     */
+    setDrawingMode(mode) {
+        if (!['draw', 'move'].includes(mode)) {
+            throw new Error('Invalid draw mode');
+        }
+        this.#drawingMode = mode;
+    }
+
+    /**
      * @returns {void}
      * @throws {Error}
      */
     #drawGrid() {
-        if (!this.#isGridVisible) return;
+        if (!this.#showGrid) return;
         if (this.#gridSize <= 0) throw new Error('Grid size must be greater than 0');
 
         this.#ctx.beginPath();

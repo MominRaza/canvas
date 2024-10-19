@@ -9,6 +9,7 @@ const width = document.getElementById('width');
 const drawType = document.getElementById('drawType');
 const cancelButton = document.getElementById('cancelButton');
 const clearButton = document.getElementById('clearButton');
+const drawMode = document.getElementById('drawMode');
 
 const drawer = new DrawCanvasShapes({
   canvas,
@@ -18,6 +19,7 @@ const drawer = new DrawCanvasShapes({
   showGrid: false,
   gridSize: gridSize.value,
   drawingType: drawType.value,
+  drawingMode: drawMode.value,
 });
 
 height.addEventListener('change', (event) => {
@@ -37,7 +39,7 @@ gridSize.addEventListener('change', (event) => {
 });
 
 showGrid.addEventListener('change', (event) => {
-  drawer.toggleGrid(event.target.checked);
+  drawer.setShowGrid(event.target.checked);
 });
 
 drawType.addEventListener('change', (event) => {
