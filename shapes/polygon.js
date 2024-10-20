@@ -81,4 +81,14 @@ export default class Polygon {
     }
     return isInside;
   }
+
+  /**
+   * @param {import("../main").Drawing} drawing
+   * @param {import("../main").Point} point
+   * @param {number} clickThreshold
+   * @returns {number}
+   */
+  isPointOnPoint({ points }, { x, y }, clickThreshold) {
+    return points.findIndex((point) => Math.abs(point.x - x) < clickThreshold / 4 && Math.abs(point.y - y) < clickThreshold / 4);
+  }
 }

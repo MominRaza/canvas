@@ -66,4 +66,14 @@ export default class Circle {
     // @ts-ignore
     return Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2) <= radius;
   }
+
+  /**
+   * @param {import("../main").Drawing} drawing
+   * @param {import("../main").Point} point
+   * @param {number} clickThreshold
+   * @returns {number}
+   */
+  isPointOnPoint({ points }, { x, y }, clickThreshold) {
+    return points.findIndex((point) => Math.abs(point.x - x) < clickThreshold / 4 && Math.abs(point.y - y) < clickThreshold / 4);
+  }
 }

@@ -32,7 +32,7 @@ import CrossIcon from './shapes/cross-icon.js';
  */
 
 /**
- * @typedef {'draw'|'move'} DrawingMode
+ * @typedef {'draw'|'move'|'resize'} DrawingMode
  */
 
 /**
@@ -128,12 +128,17 @@ export default class DrawCanvasShapes {
     #movingDrawingIndex;
 
     /**
+     * @type {number | undefined}
+     */
+    #resizingPointIndex;
+
+    /**
      * @type {Point | undefined}
      */
     #movingStartPoint;
 
     /**
-     * @type {Object<string, Polygon|Rectangle|Circle|Triangle>}
+     * @type {Object<string, Polygon|Rectangle|Circle|Triangle|Line>}
      */
     #drawingHandlers;
 
@@ -198,8 +203,8 @@ export default class DrawCanvasShapes {
         this.#canvas.onmouseenter = this.#canvasMouseEnter;
         this.#canvas.onmousedown = this.#canvasMouseDown;
         this.#canvas.onmousemove = this.#canvasMouseMove;
-        this.#canvas.onmouseup = this.#canvasMouseUp;
-        this.#canvas.onmouseleave = this.#canvasMouseLeave;
+        this.#canvas.onmouseup = this.#resetMoveResizeState;
+        this.#canvas.onmouseleave = this.#resetMoveResizeState;
     }
 
     #canvasClick = (event) => {
@@ -221,17 +226,28 @@ export default class DrawCanvasShapes {
     }
 
     #canvasMouseDown = (event) => {
-        if (this.#drawingMode !== 'move' || this.#drawings.length === 0) return;
+        if (this.#drawings.length === 0) return;
 
         const { x, y } = this.#getMousePosition(event);
 
         for (let i = this.#drawings.length - 1; i >= 0; i--) {
             const drawing = this.#drawings[i];
-            if (this.#isPointInside(drawing, { x, y })) {
-                this.#movingDrawingIndex = i;
-                this.#movingStartPoint = { x, y };
-                this.#canvas.style.cursor = 'grabbing';
-                break;
+
+            if (this.#drawingMode === 'move') {
+                if (this.#isPointInside(drawing, { x, y })) {
+                    this.#movingDrawingIndex = i;
+                    this.#movingStartPoint = { x, y };
+                    this.#canvas.style.cursor = 'grabbing';
+                    break;
+                }
+            } else if (this.#drawingMode === 'resize') {
+                const pointIndex = this.#isPointOnPoint(drawing, { x, y });
+                if (pointIndex !== -1) {
+                    this.#movingDrawingIndex = i;
+                    this.#resizingPointIndex = pointIndex;
+                    this.#movingStartPoint = { x, y };
+                    break;
+                }
             }
         }
     }
@@ -241,6 +257,7 @@ export default class DrawCanvasShapes {
 
         if (this.#drawingMode === 'draw') this.#drawModeMouseMove(x, y);
         else if (this.#drawingMode === 'move') this.#moveModeMouseMove(x, y);
+        else if (this.#drawingMode === 'resize') this.#resizeModeMouseMove(x, y);
     }
 
     #drawModeMouseMove(x, y) {
@@ -272,24 +289,44 @@ export default class DrawCanvasShapes {
         }
     }
 
-    #canvasMouseUp = () => {
-        if (this.#drawingMode !== 'move') return;
-        if (this.#movingDrawingIndex === undefined || this.#movingStartPoint === undefined) return;
+    #resizeModeMouseMove(x, y) {
+        if (this.#movingDrawingIndex === undefined || this.#resizingPointIndex === undefined || this.#movingStartPoint === undefined) {
+            this.#canvas.style.cursor = this.drawings.some((drawing) => this.#isPointOnPoint(drawing, { x, y }) !== -1) ? 'move' : 'default';
+        } else {
+            const drawing = this.#drawings[this.#movingDrawingIndex];
+            const dx = x - this.#movingStartPoint.x;
+            const dy = y - this.#movingStartPoint.y;
 
-        this.#movingDrawingIndex = undefined;
-        this.#movingStartPoint = undefined;
-        this.#canvas.style.cursor = 'grab';
+            if (drawing.type === 'rectangle' && this.#resizingPointIndex > 1) {
+
+            }
+            else {
+                const point = drawing.points[this.#resizingPointIndex];
+                point.x += dx;
+                point.y += dy;
+            }
+
+            this.#movingStartPoint = { x, y };
+            this.#redraw();
+        }
     }
 
-    #canvasMouseLeave = () => {
-        if (this.#drawingMode === 'move') {
-            this.#movingDrawingIndex = undefined;
-            this.#movingStartPoint = undefined;
-        }
+    #resetMoveResizeState = () => {
+        this.#movingDrawingIndex = undefined;
+        this.#resizingPointIndex = undefined;
+        this.#movingStartPoint = undefined;
+        this.#redraw();
     }
 
     #isPointInside(drawing, { x, y }) {
         return this.#drawingHandlers[drawing.type]?.isPointInside(drawing, { x, y });
+    }
+
+    #isPointOnPoint(drawing, { x, y }) {
+        if (['triangle', 'line'].includes(drawing.type)) {
+            return this.#drawingHandlers['polygon']?.isPointOnPoint(drawing, { x, y }, this.#clickThreshold);
+        }
+        return this.#drawingHandlers[drawing.type]?.isPointOnPoint(drawing, { x, y }, this.#clickThreshold);
     }
 
     #getMousePosition(event) {

@@ -67,4 +67,7 @@ export default class Line {
 
     return distance >= totalLength - 1;
   }
+
+  // Same as Polygon
+  // isPointOnPoint() {}
 }

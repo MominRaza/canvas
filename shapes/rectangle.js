@@ -73,4 +73,15 @@ export default class Rectangle {
 
     return x >= x1 && x <= x2 && y >= y1 && y <= y2;
   }
+
+  /**
+   * @param {import("../main").Drawing} drawing
+   * @param {import("../main").Point} point
+   * @param {number} clickThreshold
+   * @returns {number}
+   */
+  isPointOnPoint({ points: [start, end] }, { x, y }, clickThreshold) {
+    const points = [start, end, { x: start.x, y: end.y }, { x: end.x, y: start.y }];
+    return points.findIndex((point) => Math.abs(point.x - x) < clickThreshold / 4 && Math.abs(point.y - y) < clickThreshold / 4);
+  }
 }
