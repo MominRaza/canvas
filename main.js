@@ -20,6 +20,9 @@ import CrossIcon from './shapes/cross-icon.js';
  * @property {number} [radius]
  */
 
+const DRAWING_TYPES = ['polygon', 'rectangle', 'circle', 'triangle'];
+const DRAWING_MODES = ['draw', 'move'];
+
 export default class DrawCanvasShapes {
     /**
      * @type {HTMLCanvasElement}
@@ -122,6 +125,11 @@ export default class DrawCanvasShapes {
     #movingStartPoint;
 
     /**
+     * @type {Object<string, Polygon|Rectangle|Circle|Triangle>}
+     */
+    #drawingHandlers;
+
+    /**
      * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, gridColor: string, drawingType: string, showCrossIcon: boolean, drawings: Array<Drawing>, crossIconSize: number, clickThreshold: number, drawingMode: string}} options
      * @throws {Error}
      */
@@ -140,25 +148,21 @@ export default class DrawCanvasShapes {
         clickThreshold = 20,
     }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
-        if (!['polygon', 'rectangle', 'circle', 'triangle'].includes(drawingType)) throw new Error('Invalid draw type');
-        if (!['draw', 'move'].includes(drawingMode)) throw new Error('Invalid draw mode');
+        if (!DRAWING_TYPES.includes(drawingType)) throw new Error('Invalid draw type');
+        if (!DRAWING_MODES.includes(drawingMode)) throw new Error('Invalid draw mode');
 
         this.#canvas = canvas;
         this.#canvas.height = canvasHeight;
         this.#canvas.width = canvasWidth;
-
         this.#gridSize = gridSize;
         this.#gridColor = gridColor;
         this.#showGrid = showGrid;
-
         this.#drawings = drawings;
         this.#drawingType = drawingType;
         this.#drawingColor = drawingColor;
         this.#drawingMode = drawingMode;
-
         this.#crossIconSize = crossIconSize;
         this.#showCrossIcon = showCrossIcon;
-
         this.#clickThreshold = clickThreshold;
 
         this.#init();
@@ -167,17 +171,22 @@ export default class DrawCanvasShapes {
     #init() {
         // @ts-ignore
         this.#ctx = this.#canvas.getContext('2d');
+        this.#initializeShapes();
+        this.#redraw();
+        this.#initializeEventListeners();
+    }
 
+    #initializeShapes() {
         this.#polygon = new Polygon(this.#ctx);
         this.#rectangle = new Rectangle(this.#ctx);
         this.#circle = new Circle(this.#ctx);
         this.#triangle = new Triangle(this.#ctx);
+        this.#drawingHandlers = { polygon: this.#polygon, rectangle: this.#rectangle, circle: this.#circle, triangle: this.#triangle };
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
+    }
 
-        this.#redraw();
-
+    #initializeEventListeners() {
         this.#canvas.onclick = this.#canvasClick;
-
         this.#canvas.onmouseenter = this.#canvasMouseEnter;
         this.#canvas.onmousedown = this.#canvasMouseDown;
         this.#canvas.onmousemove = this.#canvasMouseMove;
@@ -194,22 +203,7 @@ export default class DrawCanvasShapes {
             return this.#redraw();
         }
 
-        switch (this.#drawingType) {
-            case 'polygon':
-                this.#polygon.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#clickThreshold);
-                break;
-            case 'rectangle':
-                this.#rectangle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
-                break;
-            case 'triangle':
-                this.#triangle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
-                break;
-            case 'circle':
-                this.#circle.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
-                break;
-            default:
-                break;
-        }
+        this.#drawingHandlers[this.#drawingType]?.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#clickThreshold);
 
         this.#redraw();
     }
@@ -249,22 +243,7 @@ export default class DrawCanvasShapes {
 
         this.#redraw();
 
-        switch (this.#drawingType) {
-            case 'polygon':
-                this.#polygon.drawPreview(this.#points, x, y, this.#drawingColor);
-                break;
-            case 'rectangle':
-                this.#rectangle.drawPreview(this.#points, x, y, this.#drawingColor);
-                break;
-            case 'circle':
-                this.#circle.drawPreview(this.#points, x, y, this.#drawingColor);
-                break;
-            case 'triangle':
-                this.#triangle.drawPreview(this.#points, x, y, this.#drawingColor);
-                break;
-            default:
-                break;
-        }
+        this.#drawingHandlers[this.#drawingType]?.drawPreview(this.#points, x, y, this.#drawingColor);
     }
 
     #moveModeMouseMove(x, y) {
@@ -307,22 +286,13 @@ export default class DrawCanvasShapes {
 
     #canvasMouseLeave = () => {
         if (this.#drawingMode === 'move') {
-        this.#movingDrawingIndex = undefined;
-        this.#movingStartPoint = undefined;
+            this.#movingDrawingIndex = undefined;
+            this.#movingStartPoint = undefined;
         }
     }
 
     #isPointInside(drawing, { x, y }) {
-        return (
-            (drawing.type === 'circle'
-                && this.#circle.isPointInside(drawing, { x, y }))
-            ||
-            (drawing.type === 'rectangle'
-                && this.#rectangle.isPointInside(drawing, { x, y }))
-            ||
-            (drawing.type === 'triangle'
-                && this.#triangle.isPointInside(drawing, { x, y }))
-        );
+        return this.#drawingHandlers[drawing.type]?.isPointInside(drawing, { x, y });
     }
 
     #getMousePosition(event) {
@@ -369,22 +339,7 @@ export default class DrawCanvasShapes {
 
     #drawShapes() {
         this.#drawings.forEach((drawing) => {
-            switch (drawing.type) {
-                case 'polygon':
-                    this.#polygon.draw(drawing);
-                    break;
-                case 'rectangle':
-                    this.#rectangle.draw(drawing);
-                    break;
-                case 'circle':
-                    this.#circle.draw(drawing);
-                    break;
-                case 'triangle':
-                    this.#triangle.draw(drawing);
-                    break;
-                default:
-                    break;
-            }
+            this.#drawingHandlers[drawing.type]?.draw(drawing);
             this.#crossIcon.draw(drawing);
         });
     }
@@ -435,7 +390,7 @@ export default class DrawCanvasShapes {
      * @throws {Error}
      */
     setDrawingType(type) {
-        if (!['polygon', 'rectangle', 'circle', 'triangle'].includes(type)) throw new Error('Invalid draw type');
+        if (!DRAWING_TYPES.includes(type)) throw new Error('Invalid draw type');
         this.#drawingType = type;
     }
 
@@ -445,7 +400,7 @@ export default class DrawCanvasShapes {
      * @throws {Error}
      */
     setDrawingMode(mode) {
-        if (!['draw', 'move'].includes(mode)) throw new Error('Invalid draw mode');
+        if (!DRAWING_MODES.includes(mode)) throw new Error('Invalid draw mode');
         this.#drawingMode = mode;
     }
 
