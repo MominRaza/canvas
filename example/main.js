@@ -19,45 +19,7 @@ const drawer = new DrawCanvasShapes({
   gridSize: parseInt(gridSize.value),
   drawingType: drawType.value,
   drawingMode: drawMode.value,
-  drawings: [
-    {
-      points: [
-        { x: 50, y: 50 },
-      ],
-      radius: 40,
-      color: '#00000090',
-      type: 'circle',
-    },
-    {
-      points: [
-        { x: 100, y: 50 },
-        { x: 200, y: 150 },
-      ],
-      color: '#ff000090',
-      type: 'rectangle',
-    },
-    {
-      points: [
-        { x: 250, y: 100 },
-        { x: 300, y: 200 },
-        { x: 200, y: 200 },
-      ],
-      color: '#00ff0090',
-      type: 'triangle',
-    },
-    {
-      points: [
-        { x: 400, y: 150 },
-        { x: 450, y: 175 },
-        { x: 450, y: 225 },
-        { x: 400, y: 250 },
-        { x: 350, y: 225 },
-        { x: 350, y: 175 },
-      ],
-      color: '#0000ff90',
-      type: 'polygon',
-    }
-  ],
+  drawings: JSON.parse(localStorage.getItem('drawings')) || [],
 });
 
 height.addEventListener('change', (event) => {
@@ -94,4 +56,8 @@ clearButton.addEventListener('click', () => {
 
 drawMode.addEventListener('change', (event) => {
   drawer.drawingMode = event.target.value;
+});
+
+document.getElementById('save').addEventListener('click', () => {
+  localStorage.setItem('drawings', JSON.stringify(drawer.drawings));
 });
