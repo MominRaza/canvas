@@ -307,6 +307,9 @@ export default class DrawCanvasShapes {
                     start.y += dy;
 
                 }
+            } else if (drawing.type === 'circle') {
+                const center = drawing.points[0];
+                drawing.radius = Math.sqrt((center.x - x) ** 2 + (center.y - y) ** 2);
             } else {
                 const point = drawing.points[this.#resizingPointIndex];
                 point.x += dx;

@@ -73,7 +73,9 @@ export default class Circle {
    * @param {number} clickThreshold
    * @returns {number}
    */
-  isPointOnPoint({ points }, { x, y }, clickThreshold) {
-    return points.findIndex((point) => Math.abs(point.x - x) < clickThreshold / 4 && Math.abs(point.y - y) < clickThreshold / 4);
+  isPointOnPoint({ points: [center], radius }, { x, y }, clickThreshold) {
+    const distance = Math.sqrt((center.x - x) ** 2 + (center.y - y) ** 2);
+    // @ts-ignore
+    return distance >= radius - clickThreshold / 8 && distance <= radius + clickThreshold / 8 ? 0 : -1;
   }
 }
