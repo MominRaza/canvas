@@ -13,11 +13,10 @@ const drawMode = document.getElementById('drawMode');
 
 const drawer = new DrawCanvasShapes({
   canvas,
-  canvasHeight: height.value,
-  canvasWidth: width.value,
+  canvasSize: { width: width.value, height: height.value },
   drawingColor: colorPicker.value,
-  showGrid: false,
-  gridSize: gridSize.value,
+  showGrid: showGrid.checked,
+  gridSize: parseInt(gridSize.value),
   drawingType: drawType.value,
   drawingMode: drawMode.value,
   drawings: [
@@ -62,27 +61,27 @@ const drawer = new DrawCanvasShapes({
 });
 
 height.addEventListener('change', (event) => {
-  drawer.setCanvasSize(parseInt(width.value), parseInt(event.target.value),);
+  drawer.canvasSize = { width: width.value, height: event.target.value };
 });
 
 width.addEventListener('change', (event) => {
-  drawer.setCanvasSize(parseInt(event.target.value), parseInt(height.value));
+  drawer.canvasSize = { width: event.target.value, height: height.value };
 });
 
 colorPicker.addEventListener('change', (event) => {
-  drawer.setDrawingColor(event.target.value);
+  drawer.drawingColor = event.target.value;
 });
 
 gridSize.addEventListener('change', (event) => {
-  drawer.setGridSize(parseInt(event.target.value));
+  drawer.gridSize = parseInt(event.target.value);
 });
 
 showGrid.addEventListener('change', (event) => {
-  drawer.setShowGrid(event.target.checked);
+  drawer.showGrid = event.target.checked;
 });
 
 drawType.addEventListener('change', (event) => {
-  drawer.setDrawingType(event.target.value);
+  drawer.drawingType = event.target.value;
 });
 
 cancelButton.addEventListener('click', () => {
@@ -94,5 +93,5 @@ clearButton.addEventListener('click', () => {
 });
 
 drawMode.addEventListener('change', (event) => {
-  drawer.setDrawingMode(event.target.value);
+  drawer.drawingMode = event.target.value;
 });

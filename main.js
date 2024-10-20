@@ -20,8 +20,35 @@ import CrossIcon from './shapes/cross-icon.js';
  * @property {number} [radius]
  */
 
-const DRAWING_TYPES = ['polygon', 'rectangle', 'circle', 'triangle'];
-const DRAWING_MODES = ['draw', 'move'];
+/**
+ * @typedef {Object} CanvasSize
+ * @property {number} width
+ * @property {number} height
+ */
+
+/**
+ * @typedef {'polygon'|'rectangle'|'circle'|'triangle'} DrawingType
+ */
+
+/**
+ * @typedef {'draw'|'move'} DrawingMode
+ */
+
+/**
+ * @typedef {Object} DrawCanvasShapesOptions
+ * @property {HTMLCanvasElement} canvas
+ * @property {CanvasSize} canvasSize
+ * @property {string} gridColor
+ * @property {number} gridSize
+ * @property {boolean} showGrid
+ * @property {Array<Drawing>} drawings
+ * @property {DrawingType} drawingType
+ * @property {string} drawingColor
+ * @property {DrawingMode} drawingMode
+ * @property {number} crossIconSize
+ * @property {boolean} showCrossIcon
+ * @property {number} clickThreshold
+ */
 
 export default class DrawCanvasShapes {
     /**
@@ -70,7 +97,7 @@ export default class DrawCanvasShapes {
     #clickThreshold;
 
     /**
-     * @type {string}
+     * @type {DrawingType}
      */
     #drawingType;
 
@@ -80,7 +107,7 @@ export default class DrawCanvasShapes {
     #drawingColor;
 
     /**
-     * @type {string}
+     * @type {DrawingMode}
      */
     #drawingMode;
 
@@ -88,26 +115,6 @@ export default class DrawCanvasShapes {
      * @type {boolean}
      */
     #showCrossIcon;
-
-    /**
-     * @type {Polygon}
-     */
-    #polygon;
-
-    /**
-     * @type {Rectangle}
-     */
-    #rectangle;
-
-    /**
-     * @type {Circle}
-     */
-    #circle;
-
-    /**
-     * @type {Triangle}
-     */
-    #triangle;
 
     /**
      * @type {CrossIcon}
@@ -130,12 +137,12 @@ export default class DrawCanvasShapes {
     #drawingHandlers;
 
     /**
-     * @param {{canvas: HTMLCanvasElement, canvasHeight: number, canvasWidth: number, drawingColor: string, showGrid: boolean, gridSize: number, gridColor: string, drawingType: string, showCrossIcon: boolean, drawings: Array<Drawing>, crossIconSize: number, clickThreshold: number, drawingMode: string}} options
+     * @param {DrawCanvasShapesOptions} options
      * @throws {Error}
      */
-    constructor({ canvas,
-        canvasHeight = 300,
-        canvasWidth = 497,
+    constructor({
+        canvas,
+        canvasSize: { width = 497, height = 300 },
         gridSize = 20,
         gridColor = '#ddd',
         showGrid = false,
@@ -148,12 +155,10 @@ export default class DrawCanvasShapes {
         clickThreshold = 20,
     }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
-        if (!DRAWING_TYPES.includes(drawingType)) throw new Error('Invalid draw type');
-        if (!DRAWING_MODES.includes(drawingMode)) throw new Error('Invalid draw mode');
 
         this.#canvas = canvas;
-        this.#canvas.height = canvasHeight;
-        this.#canvas.width = canvasWidth;
+        this.#canvas.width = width;
+        this.#canvas.height = height;
         this.#gridSize = gridSize;
         this.#gridColor = gridColor;
         this.#showGrid = showGrid;
@@ -334,87 +339,79 @@ export default class DrawCanvasShapes {
         });
     }
 
-
     // Public setters and getters
 
     /**
-     * @param {number} width
-     * @param {number} height
-     * @returns {void}
+     * @param {CanvasSize} canvasSize
      */
-    setCanvasSize(width, height) {
+    set canvasSize({ width, height }) {
         this.#canvas.width = width;
         this.#canvas.height = height;
         this.#redraw();
     }
 
     /**
-     * @param {number} size
-     * @returns {void}
+     * @param {number} gridSize
      */
-    setGridSize(size) {
-        this.#gridSize = size;
+    set gridSize(gridSize) {
+        this.#gridSize = gridSize;
         this.#redraw();
     }
 
     /**
-     * @param {boolean} show
-     * @returns {void}
+     * @param {boolean} showGrid
      */
-    setShowGrid(show) {
-        this.#showGrid = show;
+    set showGrid(showGrid) {
+        this.#showGrid = showGrid;
         this.#redraw();
     }
 
     /**
-     * @param {string} color
-     * @returns {void}
+     * @param {string} drawingColor
      */
-    setDrawingColor(color) {
-        this.#drawingColor = color;
+    set drawingColor(drawingColor) {
+        this.#drawingColor = drawingColor;
     }
 
     /**
-     * @param {'polygon'|'rectangle'|'circle'|'triangle'} type
-     * @returns {void}
-     * @throws {Error}
+     * @param {DrawingType} type
      */
-    setDrawingType(type) {
-        if (!DRAWING_TYPES.includes(type)) throw new Error('Invalid draw type');
+    set drawingType(type) {
         this.#drawingType = type;
     }
 
     /**
-     * @param {string} mode
-     * @returns {void}
-     * @throws {Error}
+     * @param {DrawingMode} drawingMode
      */
-    setDrawingMode(mode) {
-        if (!DRAWING_MODES.includes(mode)) throw new Error('Invalid draw mode');
-        this.#drawingMode = mode;
+    set drawingMode(drawingMode) {
+        this.#drawingMode = drawingMode;
     }
 
     /**
-     * @returns {void}
-    */
-    cancelDrawing() {
-        this.#points = [];
-        this.#redraw();
-    }
-
-    /**
-     * @returns {void}
+     * @param {Array<Drawing>} drawings
      */
-    clearCanvas() {
-        this.#points = [];
-        this.#drawings = [];
+    set drawings(drawings) {
+        this.#drawings = drawings;
         this.#redraw();
     }
 
     /**
      * @returns {Array<Drawing>}
      */
-    getDrawings() {
+    get drawings() {
         return this.#drawings;
+    }
+
+    // Public methods
+
+    cancelDrawing() {
+        this.#points = [];
+        this.#redraw();
+    }
+
+    clearCanvas() {
+        this.#points = [];
+        this.#drawings = [];
+        this.#redraw();
     }
 }
