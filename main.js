@@ -4,6 +4,7 @@ import Polygon from './shapes/polygon.js';
 import Rectangle from './shapes/rectangle.js';
 import Circle from './shapes/circle.js';
 import Triangle from './shapes/triangle.js';
+import Line from './shapes/line.js';
 import CrossIcon from './shapes/cross-icon.js';
 
 /**
@@ -27,7 +28,7 @@ import CrossIcon from './shapes/cross-icon.js';
  */
 
 /**
- * @typedef {'polygon'|'rectangle'|'circle'|'triangle'} DrawingType
+ * @typedef {'polygon'|'rectangle'|'circle'|'triangle'|'line'} DrawingType
  */
 
 /**
@@ -186,7 +187,8 @@ export default class DrawCanvasShapes {
             polygon: new Polygon(this.#ctx),
             rectangle: new Rectangle(this.#ctx),
             circle: new Circle(this.#ctx),
-            triangle: new Triangle(this.#ctx)
+            triangle: new Triangle(this.#ctx),
+            line: new Line(this.#ctx),
         };
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
     }
