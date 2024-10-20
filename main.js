@@ -335,7 +335,7 @@ export default class DrawCanvasShapes {
     #drawShapes() {
         this.#drawings.forEach((drawing) => {
             this.#drawingHandlers[drawing.type]?.draw(drawing);
-            this.#crossIcon.draw(drawing);
+            if (this.#drawingMode === 'draw') this.#crossIcon.draw(drawing);
         });
     }
 
@@ -401,6 +401,7 @@ export default class DrawCanvasShapes {
      */
     set drawingMode(drawingMode) {
         this.#drawingMode = drawingMode;
+        this.#redraw();
     }
 
     /**
