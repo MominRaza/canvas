@@ -249,18 +249,7 @@ export default class DrawCanvasShapes {
 
     #moveModeMouseMove(x, y) {
         if (this.#movingDrawingIndex === undefined || this.#movingStartPoint === undefined) {
-            let cursorStyle = 'default';
-
-            for (let i = this.#drawings.length - 1; i >= 0; i--) {
-                const drawing = this.#drawings[i];
-
-                if (this.#isPointInside(drawing, { x, y })) {
-                    cursorStyle = 'grab';
-                    break;
-                }
-            }
-
-            this.#canvas.style.cursor = cursorStyle;
+            this.#canvas.style.cursor = this.#drawings.some((drawing) => this.#isPointInside(drawing, { x, y })) ? 'grab' : 'default';
         } else {
             const drawing = this.#drawings[this.#movingDrawingIndex];
             const dx = x - this.#movingStartPoint.x;
