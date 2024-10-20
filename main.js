@@ -299,15 +299,13 @@ export default class DrawCanvasShapes {
 
             if (drawing.type === 'rectangle' && this.#resizingPointIndex > 1) {
                 const [start, end] = drawing.points;
-                switch (this.#resizingPointIndex) {
-                    case 2:
-                        start.x += dx;
-                        end.y += dy;
-                        break;
-                    case 3:
-                        end.x += dx;
-                        start.y += dy;
-                        break;
+                if (this.#resizingPointIndex === 2) {
+                    start.x += dx;
+                    end.y += dy;
+                } else {
+                    end.x += dx;
+                    start.y += dy;
+
                 }
             } else {
                 const point = drawing.points[this.#resizingPointIndex];
