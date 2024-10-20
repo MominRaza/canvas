@@ -177,11 +177,12 @@ export default class DrawCanvasShapes {
     }
 
     #initializeShapes() {
-        this.#polygon = new Polygon(this.#ctx);
-        this.#rectangle = new Rectangle(this.#ctx);
-        this.#circle = new Circle(this.#ctx);
-        this.#triangle = new Triangle(this.#ctx);
-        this.#drawingHandlers = { polygon: this.#polygon, rectangle: this.#rectangle, circle: this.#circle, triangle: this.#triangle };
+        this.#drawingHandlers = {
+            polygon: new Polygon(this.#ctx),
+            rectangle: new Rectangle(this.#ctx),
+            circle: new Circle(this.#ctx),
+            triangle: new Triangle(this.#ctx)
+        };
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
     }
 
