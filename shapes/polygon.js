@@ -62,4 +62,23 @@ export default class Polygon {
     this.ctx.strokeStyle = color;
     this.ctx.stroke();
   }
+
+  /**
+   * @param {import("../main").Drawing} drawing
+   * @param {import("../main").Point} point
+   * @returns {boolean}
+   */
+  isPointInside({ points }, { x, y }) {
+    let isInside = false;
+    const n = points.length;
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      const xi = points[i].x, yi = points[i].y;
+      const xj = points[j].x, yj = points[j].y;
+
+      const intersect = ((yi > y) !== (yj > y)) &&
+        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) isInside = !isInside;
+    }
+    return isInside;
+  }
 }
