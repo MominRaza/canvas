@@ -37,17 +37,17 @@ import CrossIcon from './shapes/cross-icon.js';
 /**
  * @typedef {Object} DrawCanvasShapesOptions
  * @property {HTMLCanvasElement} canvas
- * @property {CanvasSize} canvasSize
- * @property {string} gridColor
- * @property {number} gridSize
- * @property {boolean} showGrid
- * @property {Array<Drawing>} drawings
- * @property {DrawingType} drawingType
- * @property {string} drawingColor
- * @property {DrawingMode} drawingMode
- * @property {number} crossIconSize
- * @property {boolean} showCrossIcon
- * @property {number} clickThreshold
+ * @property {CanvasSize} [canvasSize]
+ * @property {string} [gridColor]
+ * @property {number} [gridSize]
+ * @property {boolean} [showGrid]
+ * @property {Array<Drawing>} [drawings]
+ * @property {DrawingType} [drawingType]
+ * @property {string} [drawingColor]
+ * @property {DrawingMode} [drawingMode]
+ * @property {number} [crossIconSize]
+ * @property {boolean} [showCrossIcon]
+ * @property {number} [clickThreshold]
  */
 
 export default class DrawCanvasShapes {
@@ -142,7 +142,7 @@ export default class DrawCanvasShapes {
      */
     constructor({
         canvas,
-        canvasSize: { width = 497, height = 300 },
+        canvasSize = { width: 497, height: 300 },
         gridSize = 20,
         gridColor = '#ddd',
         showGrid = false,
@@ -157,8 +157,8 @@ export default class DrawCanvasShapes {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
 
         this.#canvas = canvas;
-        this.#canvas.width = width;
-        this.#canvas.height = height;
+        this.#canvas.width = canvasSize.width;
+        this.#canvas.height = canvasSize.height;
         this.#gridSize = gridSize;
         this.#gridColor = gridColor;
         this.#showGrid = showGrid;
@@ -339,7 +339,7 @@ export default class DrawCanvasShapes {
         });
     }
 
-    // Public setters and getters
+    // Public setters
 
     /**
      * @param {CanvasSize} canvasSize
@@ -359,11 +359,34 @@ export default class DrawCanvasShapes {
     }
 
     /**
+     * @param {string} gridColor
+     */
+    set gridColor(gridColor) {
+        this.#gridColor = gridColor;
+        this.#redraw();
+    }
+
+    /**
      * @param {boolean} showGrid
      */
     set showGrid(showGrid) {
         this.#showGrid = showGrid;
         this.#redraw();
+    }
+
+    /**
+     * @param {Array<Drawing>} drawings
+     */
+    set drawings(drawings) {
+        this.#drawings = drawings;
+        this.#redraw();
+    }
+
+    /**
+     * @param {DrawingType} drawingType
+     */
+    set drawingType(drawingType) {
+        this.#drawingType = drawingType;
     }
 
     /**
@@ -374,13 +397,6 @@ export default class DrawCanvasShapes {
     }
 
     /**
-     * @param {DrawingType} type
-     */
-    set drawingType(type) {
-        this.#drawingType = type;
-    }
-
-    /**
      * @param {DrawingMode} drawingMode
      */
     set drawingMode(drawingMode) {
@@ -388,12 +404,31 @@ export default class DrawCanvasShapes {
     }
 
     /**
-     * @param {Array<Drawing>} drawings
+     * @param {number} crossIconSize
      */
-    set drawings(drawings) {
-        this.#drawings = drawings;
+    set crossIconSize(crossIconSize) {
+        this.#crossIconSize = crossIconSize;
+        this.#crossIcon.crossIconSize = crossIconSize;
         this.#redraw();
     }
+
+    /**
+     * @param {boolean} showCrossIcon
+     */
+    set showCrossIcon(showCrossIcon) {
+        this.#showCrossIcon = showCrossIcon;
+        this.#crossIcon.showCrossIcon = showCrossIcon;
+        this.#redraw();
+    }
+
+    /**
+     * @param {number} clickThreshold
+     */
+    set clickThreshold(clickThreshold) {
+        this.#clickThreshold = clickThreshold;
+    }
+
+    // Public getters
 
     /**
      * @returns {Array<Drawing>}
