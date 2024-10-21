@@ -393,6 +393,7 @@ export default class DrawCanvasShapes {
         }
 
         this.#ctx.strokeStyle = this.#gridColor;
+        this.#ctx.lineWidth = 1;
         this.#ctx.stroke();
     }
 

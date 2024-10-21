@@ -24,6 +24,7 @@ export default class CrossIcon {
     this.ctx.fillStyle = 'white';
     this.ctx.fill();
     this.ctx.strokeStyle = drawing.color;
+    this.ctx.lineWidth = 2;
     this.ctx.stroke();
 
     this.ctx.beginPath();
