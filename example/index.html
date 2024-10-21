@@ -11,35 +11,40 @@
 
 <body>
     <select id="drawingType">
-        <option value="polygon">Polygon</option>
-        <option value="rectangle">Rectangle</option>
-        <option value="triangle">Triangle</option>
-        <option value="circle">Circle</option>
         <option value="line">Line</option>
+        <option value="rectangle">Rectangle</option>
+        <option value="circle">Circle</option>
+        <option value="triangle">Triangle</option>
+        <option value="polygon" selected>Polygon</option>
         <option value="freehand">Freehand</option>
     </select>
     <select id="colorPicker">
-        <option value="#0000ff90">Blue</option>
-        <option value="#00000090">Black</option>
         <option value="#ff000090">Red</option>
+        <option value="#ffa50090">Orange</option>
+        <option value="#ffff0090">Yellow</option>
         <option value="#00ff0090">Green</option>
+        <option value="#0000ff90" selected>Blue</option>
+        <option value="#4b008290">Indigo</option>
+        <option value="#ee82ee90">Violet</option>
+        <option value="#00000090">Black</option>
+        <option value="#ffffff90">White</option>
     </select>
     <button id="cancelButton">Cancel</button>
     <button id="clearButton">Clear</button>
     <select id="gridSize">
         <option value="10">10x10</option>
-        <option value="20">20x20</option>
+        <option value="20" selected>20x20</option>
         <option value="30">30x30</option>
         <option value="40">40x40</option>
     </select>
-    <input type="checkbox" id="showGrid">Show Grid</input>
+    <input type="checkbox" id="showGrid" checked>Show Grid</input>
     <select id="drawMode">
         <option value="draw">Draw</option>
-        <option value="resize">Resize</option>
         <option value="move">Move</option>
+        <option value="resize">Resize</option>
     </select>
     <br>
-    <input type="number" id="height" value="300"> x <input type="number" id="width" value="497">
+    <input type="number" id="height" value="300"> x <input type="number" id="width" value="500">
     <input type="button" id="save" value="Save">
     <canvas id="canvas"></canvas>
 </body>
