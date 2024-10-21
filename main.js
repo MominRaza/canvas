@@ -189,11 +189,11 @@ export default class DrawCanvasShapes {
 
     #initializeShapes() {
         this.#drawingHandlers = {
-            polygon: new Polygon(this.#ctx),
-            rectangle: new Rectangle(this.#ctx),
-            circle: new Circle(this.#ctx),
-            triangle: new Triangle(this.#ctx),
-            line: new Line(this.#ctx),
+            polygon: new Polygon(this.#ctx, this.#clickThreshold),
+            rectangle: new Rectangle(this.#ctx, this.#clickThreshold),
+            circle: new Circle(this.#ctx, this.#clickThreshold),
+            triangle: new Triangle(this.#ctx, this.#clickThreshold),
+            line: new Line(this.#ctx, this.#clickThreshold),
         };
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
     }
@@ -216,7 +216,7 @@ export default class DrawCanvasShapes {
             return this.#redraw();
         }
 
-        this.#drawingHandlers[this.#drawingType]?.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#clickThreshold);
+        this.#drawingHandlers[this.#drawingType]?.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
 
         this.#redraw();
     }
@@ -334,11 +334,9 @@ export default class DrawCanvasShapes {
 
     #isPointOnPoint(drawing, { x, y }) {
         if (['triangle', 'line'].includes(drawing.type)) {
-            // @ts-ignore
-            return this.#drawingHandlers['polygon']?.isPointOnPoint(drawing, { x, y }, this.#clickThreshold);
+            return this.#drawingHandlers['polygon']?.isPointOnPoint(drawing, { x, y });
         }
-        // @ts-ignore
-        return this.#drawingHandlers[drawing.type]?.isPointOnPoint(drawing, { x, y }, this.#clickThreshold);
+        return this.#drawingHandlers[drawing.type]?.isPointOnPoint(drawing, { x, y });
     }
 
     #getMousePosition(event) {

@@ -3,9 +3,11 @@
 export default class Rectangle {
   /**
    * @param {CanvasRenderingContext2D} ctx
+   * @param {number} clickThreshold
    */
-  constructor(ctx) {
+  constructor(ctx, clickThreshold) {
     this.ctx = ctx;
+    this.clickThreshold = clickThreshold;
   }
 
   /**
@@ -34,7 +36,8 @@ export default class Rectangle {
   click(points, drawings, x, y, color, drawingType) {
     points.push({ x, y });
     if (points.length === 2) {
-      drawings.push({ points: [...points], color, type: drawingType });
+      const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
+      drawings.push({ points: [...points], color, type: drawingType, canvasSize });
       points.length = 0;
     }
   }
@@ -77,11 +80,10 @@ export default class Rectangle {
   /**
    * @param {import("../main").Drawing} drawing
    * @param {import("../main").Point} point
-   * @param {number} clickThreshold
    * @returns {number}
    */
-  isPointOnPoint({ points: [start, end] }, { x, y }, clickThreshold) {
+  isPointOnPoint({ points: [start, end] }, { x, y }) {
     const points = [start, end, { x: start.x, y: end.y }, { x: end.x, y: start.y }];
-    return points.findIndex((point) => Math.abs(point.x - x) < clickThreshold / 4 && Math.abs(point.y - y) < clickThreshold / 4);
+    return points.findIndex((point) => Math.abs(point.x - x) < this.clickThreshold / 4 && Math.abs(point.y - y) < this.clickThreshold / 4);
   }
 }

@@ -3,9 +3,11 @@
 export default class Polygon {
   /**
    * @param {CanvasRenderingContext2D} ctx
+   * @param {number} clickThreshold
    */
-  constructor(ctx) {
+  constructor(ctx, clickThreshold) {
     this.ctx = ctx;
+    this.clickThreshold = clickThreshold;
   }
 
   /**
@@ -33,13 +35,13 @@ export default class Polygon {
    * @param {number} y
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
-   * @param {number} clickThreshold
    * @returns {void}
    */
-  click(points, drawings, x, y, color, drawingType, clickThreshold) {
-    if (points.length > 0 && Math.abs(x - points[0].x) < clickThreshold && Math.abs(y - points[0].y) < clickThreshold) {
+  click(points, drawings, x, y, color, drawingType) {
+    if (points.length > 0 && Math.abs(x - points[0].x) < this.clickThreshold && Math.abs(y - points[0].y) < this.clickThreshold) {
       if (points.length > 2) {
-        drawings.push({ points: [...points], color, type: drawingType });
+        const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
+        drawings.push({ points: [...points], color, type: drawingType, canvasSize });
         points.length = 0;
       }
     } else {
@@ -85,10 +87,9 @@ export default class Polygon {
   /**
    * @param {import("../main").Drawing} drawing
    * @param {import("../main").Point} point
-   * @param {number} clickThreshold
    * @returns {number}
    */
-  isPointOnPoint({ points }, { x, y }, clickThreshold) {
-    return points.findIndex((point) => Math.abs(point.x - x) < clickThreshold / 4 && Math.abs(point.y - y) < clickThreshold / 4);
+  isPointOnPoint({ points }, { x, y }) {
+    return points.findIndex((point) => Math.abs(point.x - x) < this.clickThreshold / 4 && Math.abs(point.y - y) < this.clickThreshold / 4);
   }
 }

@@ -3,9 +3,11 @@
 export default class Circle {
   /**
    * @param {CanvasRenderingContext2D} ctx
+   * @param {number} clickThreshold
    */
-  constructor(ctx) {
+  constructor(ctx, clickThreshold) {
     this.ctx = ctx;
+    this.clickThreshold = clickThreshold;
   }
 
   /**
@@ -32,12 +34,13 @@ export default class Circle {
   click(points, drawings, x, y, color, drawingType) {
     if (points.length === 0) {
       points.push({ x, y });
-    } else {
-      const start = points[0];
-      const radius = Math.sqrt((x - start.x) ** 2 + (y - start.y) ** 2);
-      drawings.push({ points: [{ x: start.x, y: start.y }], color, type: drawingType, radius });
-      points.length = 0;
+      return;
     }
+    const center = points[0];
+    const radius = Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2);
+    const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
+    drawings.push({ points: [center], color, type: drawingType, radius, canvasSize });
+    points.length = 0;
   }
 
   /**
@@ -70,12 +73,11 @@ export default class Circle {
   /**
    * @param {import("../main").Drawing} drawing
    * @param {import("../main").Point} point
-   * @param {number} clickThreshold
    * @returns {number}
    */
-  isPointOnPoint({ points: [center], radius }, { x, y }, clickThreshold) {
+  isPointOnPoint({ points: [center], radius }, { x, y }) {
     const distance = Math.sqrt((center.x - x) ** 2 + (center.y - y) ** 2);
     // @ts-ignore
-    return distance >= radius - clickThreshold / 8 && distance <= radius + clickThreshold / 8 ? 0 : -1;
+    return distance >= radius - this.clickThreshold / 8 && distance <= radius + this.clickThreshold / 8 ? 0 : -1;
   }
 }

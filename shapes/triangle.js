@@ -3,9 +3,11 @@
 export default class Triangle {
   /**
    * @param {CanvasRenderingContext2D} ctx
+   * @param {number} clickThreshold
    */
-  constructor(ctx) {
+  constructor(ctx, clickThreshold) {
     this.ctx = ctx;
+    this.clickThreshold = clickThreshold;
   }
 
   /**
@@ -37,7 +39,8 @@ export default class Triangle {
         x: points[0].x - (points[1].x - points[0].x),
         y: points[1].y
       };
-      drawings.push({ points: [...points, thirdPoint], color, type: drawingType });
+      const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
+      drawings.push({ points: [...points, thirdPoint], color, type: drawingType, canvasSize });
       points.length = 0;
     }
   }
@@ -73,6 +76,12 @@ export default class Triangle {
     return (a >= 0 && b >= 0 && c >= 0) || (a <= 0 && b <= 0 && c <= 0)
   }
 
-  // Same as Polygon
-  // isPointOnPoint() {}
+  /**
+   * @param {import("../main").Drawing} drawing
+   * @param {import("../main").Point} point
+   * @returns {number}
+   */
+  isPointOnPoint({ points }, { x, y }) {
+    return points.findIndex((point) => Math.abs(point.x - x) < this.clickThreshold / 4 && Math.abs(point.y - y) < this.clickThreshold / 4);
+  }
 }
