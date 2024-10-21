@@ -17,7 +17,7 @@ import CrossIcon from './shapes/cross-icon.js';
  * @typedef {Object} Drawing
  * @property {Array<Point>} points
  * @property {string} color
- * @property {string} type
+ * @property {DrawingType} type
  * @property {number} [radius]
  */
 
@@ -334,8 +334,10 @@ export default class DrawCanvasShapes {
 
     #isPointOnPoint(drawing, { x, y }) {
         if (['triangle', 'line'].includes(drawing.type)) {
+            // @ts-ignore
             return this.#drawingHandlers['polygon']?.isPointOnPoint(drawing, { x, y }, this.#clickThreshold);
         }
+        // @ts-ignore
         return this.#drawingHandlers[drawing.type]?.isPointOnPoint(drawing, { x, y }, this.#clickThreshold);
     }
 

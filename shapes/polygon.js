@@ -32,14 +32,14 @@ export default class Polygon {
    * @param {number} x
    * @param {number} y
    * @param {string} color
-   * @param {string} drawType
+   * @param {import("../main").DrawingType} drawingType
    * @param {number} clickThreshold
    * @returns {void}
    */
-  click(points, drawings, x, y, color, drawType, clickThreshold) {
+  click(points, drawings, x, y, color, drawingType, clickThreshold) {
     if (points.length > 0 && Math.abs(x - points[0].x) < clickThreshold && Math.abs(y - points[0].y) < clickThreshold) {
       if (points.length > 2) {
-        drawings.push({ points: [...points], color, type: drawType });
+        drawings.push({ points: [...points], color, type: drawingType });
         points.length = 0;
       }
     } else {

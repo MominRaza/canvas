@@ -27,17 +27,17 @@ export default class Triangle {
    * @param {number} x
    * @param {number} y
    * @param {string} color
-   * @param {string} drawType
+   * @param {import("../main").DrawingType} drawingType
    * @returns {void}
    */
-  click(points, drawings, x, y, color, drawType) {
+  click(points, drawings, x, y, color, drawingType) {
     points.push({ x, y });
     if (points.length === 2) {
       const thirdPoint = {
         x: points[0].x - (points[1].x - points[0].x),
         y: points[1].y
       };
-      drawings.push({ points: [...points, thirdPoint], color, type: drawType });
+      drawings.push({ points: [...points, thirdPoint], color, type: drawingType });
       points.length = 0;
     }
   }

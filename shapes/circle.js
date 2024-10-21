@@ -26,16 +26,16 @@ export default class Circle {
    * @param {number} x
    * @param {number} y
    * @param {string} color
-   * @param {string} drawType
+   * @param {import("../main").DrawingType} drawingType
    * @returns {void}
    */
-  click(points, drawings, x, y, color, drawType) {
+  click(points, drawings, x, y, color, drawingType) {
     if (points.length === 0) {
       points.push({ x, y });
     } else {
       const start = points[0];
       const radius = Math.sqrt((x - start.x) ** 2 + (y - start.y) ** 2);
-      drawings.push({ points: [{ x: start.x, y: start.y }], color, type: drawType, radius });
+      drawings.push({ points: [{ x: start.x, y: start.y }], color, type: drawingType, radius });
       points.length = 0;
     }
   }

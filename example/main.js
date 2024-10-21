@@ -6,7 +6,7 @@ const gridSize = document.getElementById('gridSize');
 const showGrid = document.getElementById('showGrid');
 const height = document.getElementById('height');
 const width = document.getElementById('width');
-const drawType = document.getElementById('drawType');
+const drawingType = document.getElementById('drawingType');
 const cancelButton = document.getElementById('cancelButton');
 const clearButton = document.getElementById('clearButton');
 const drawMode = document.getElementById('drawMode');
@@ -17,7 +17,7 @@ const drawer = new DrawCanvasShapes({
   drawingColor: colorPicker.value,
   showGrid: showGrid.checked,
   gridSize: parseInt(gridSize.value),
-  drawingType: drawType.value,
+  drawingType: drawingType.value,
   drawingMode: drawMode.value,
   drawings: JSON.parse(localStorage.getItem('drawings')) || [],
 });
@@ -42,7 +42,7 @@ showGrid.addEventListener('change', (event) => {
   drawer.showGrid = event.target.checked;
 });
 
-drawType.addEventListener('change', (event) => {
+drawingType.addEventListener('change', (event) => {
   drawer.drawingType = event.target.value;
 });
 
