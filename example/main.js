@@ -20,6 +20,7 @@ const drawer = new DrawCanvasShapes({
   drawingType: drawingType.value,
   drawingMode: drawMode.value,
   drawings: JSON.parse(localStorage.getItem('drawings')) || [],
+  resizeOnCanvasSizeChange: true,
 });
 
 height.addEventListener('change', (event) => {

@@ -51,6 +51,7 @@ import Freehand from './shapes/freehand.js';
  * @property {number} [crossIconSize]
  * @property {boolean} [showCrossIcon]
  * @property {number} [clickThreshold]
+ * @property {boolean} [resizeOnCanvasSizeChange]
  */
 
 export default class DrawCanvasShapes {
@@ -147,6 +148,11 @@ export default class DrawCanvasShapes {
     #freehandInProgress = false;
 
     /**
+     * @type {boolean}
+     */
+    #resizeOnCanvasSizeChange;
+
+    /**
      * @type {Freehand}
      */
     #freehand;
@@ -168,6 +174,7 @@ export default class DrawCanvasShapes {
         crossIconSize = 10,
         showCrossIcon = true,
         clickThreshold = 20,
+        resizeOnCanvasSizeChange = false,
     }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
 
@@ -184,6 +191,7 @@ export default class DrawCanvasShapes {
         this.#crossIconSize = crossIconSize;
         this.#showCrossIcon = showCrossIcon;
         this.#clickThreshold = clickThreshold;
+        this.#resizeOnCanvasSizeChange = resizeOnCanvasSizeChange;
 
         this.#init();
     }
@@ -421,9 +429,19 @@ export default class DrawCanvasShapes {
 
     #drawShapes() {
         this.#drawings.forEach((drawing) => {
+            if (this.#resizeOnCanvasSizeChange) {
+                const widthRatio = this.#canvas.width / drawing.canvasSize.width;
+                const heightRatio = this.#canvas.height / drawing.canvasSize.height;
+
+                this.#ctx.save();
+                this.#ctx.scale(widthRatio, heightRatio);
+            }
+
             if (drawing.type === 'freehand') this.#freehand.draw(drawing);
             else this.#drawingHandlers[drawing.type]?.draw(drawing);
             if (this.#drawingMode === 'draw') this.#crossIcon.draw(drawing);
+
+            if (this.#resizeOnCanvasSizeChange) this.#ctx.restore();
         });
     }
 
