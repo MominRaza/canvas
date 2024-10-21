@@ -147,6 +147,11 @@ export default class DrawCanvasShapes {
     #freehandInProgress = false;
 
     /**
+     * @type {Freehand}
+     */
+    #freehand;
+
+    /**
      * @param {DrawCanvasShapesOptions} options
      * @throws {Error}
      */
@@ -199,6 +204,7 @@ export default class DrawCanvasShapes {
             triangle: new Triangle(this.#ctx, this.#clickThreshold),
             line: new Line(this.#ctx, this.#clickThreshold),
         };
+        this.#freehand = new Freehand(this.#ctx);
         this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
     }
 
@@ -415,7 +421,7 @@ export default class DrawCanvasShapes {
 
     #drawShapes() {
         this.#drawings.forEach((drawing) => {
-            if (drawing.type === 'freehand') { new Freehand(this.#ctx).draw(drawing); }
+            if (drawing.type === 'freehand') this.#freehand.draw(drawing);
             else this.#drawingHandlers[drawing.type]?.draw(drawing);
             if (this.#drawingMode === 'draw') this.#crossIcon.draw(drawing);
         });
