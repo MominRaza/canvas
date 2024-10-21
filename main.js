@@ -456,28 +456,12 @@ export default class DrawCanvasShapes {
     }
 
     /**
-     * @param {number} crossIconSize
-     */
-    set crossIconSize(crossIconSize) {
-        this.#crossIconSize = crossIconSize;
-        this.#crossIcon.crossIconSize = crossIconSize;
-        this.#redraw();
-    }
-
-    /**
      * @param {boolean} showCrossIcon
      */
     set showCrossIcon(showCrossIcon) {
         this.#showCrossIcon = showCrossIcon;
         this.#crossIcon.showCrossIcon = showCrossIcon;
         this.#redraw();
-    }
-
-    /**
-     * @param {number} clickThreshold
-     */
-    set clickThreshold(clickThreshold) {
-        this.#clickThreshold = clickThreshold;
     }
 
     // Public getters

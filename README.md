@@ -52,9 +52,7 @@ drawer.drawings = [];
 drawer.drawingType = 'polygon';
 drawer.drawingColor = '#000';
 drawer.drawingMode = 'draw';
-drawer.crossIconSize = 10;
 drawer.showCrossIcon = true;
-drawer.clickThreshold = 20;
 
 // use cancelDrawing method to cancel the current drawing
 drawer.cancelDrawing();
