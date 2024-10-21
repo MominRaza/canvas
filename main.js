@@ -6,6 +6,7 @@ import Circle from './shapes/circle.js';
 import Triangle from './shapes/triangle.js';
 import Line from './shapes/line.js';
 import CrossIcon from './shapes/cross-icon.js';
+import Freehand from './shapes/freehand.js';
 
 /**
  * @typedef {Object} Point
@@ -19,6 +20,7 @@ import CrossIcon from './shapes/cross-icon.js';
  * @property {string} color
  * @property {DrawingType} type
  * @property {number} [radius]
+ * @property {CanvasSize} canvasSize
  */
 
 /**
@@ -28,7 +30,7 @@ import CrossIcon from './shapes/cross-icon.js';
  */
 
 /**
- * @typedef {'polygon'|'rectangle'|'circle'|'triangle'|'line'} DrawingType
+ * @typedef {'polygon'|'rectangle'|'circle'|'triangle'|'line'|'freehand'} DrawingType
  */
 
 /**
@@ -142,6 +144,8 @@ export default class DrawCanvasShapes {
      */
     #drawingHandlers;
 
+    #freehandInProgress = false;
+
     /**
      * @param {DrawCanvasShapesOptions} options
      * @throws {Error}
@@ -226,6 +230,12 @@ export default class DrawCanvasShapes {
     }
 
     #canvasMouseDown = (event) => {
+        if (this.#drawingMode === 'draw' && this.#drawingType === 'freehand') {
+            this.#freehandInProgress = true;
+            this.#points.push(this.#getMousePosition(event));
+            return;
+        }
+
         if (this.#drawings.length === 0) return;
 
         const { x, y } = this.#getMousePosition(event);
@@ -267,6 +277,11 @@ export default class DrawCanvasShapes {
         }
 
         this.#redraw();
+
+        if (this.#drawingType === 'freehand' && this.#freehandInProgress) {
+            this.#points.push({ x, y });
+            return;
+        }
 
         this.#drawingHandlers[this.#drawingType]?.drawPreview(this.#points, x, y, this.#drawingColor);
     }
@@ -325,6 +340,21 @@ export default class DrawCanvasShapes {
         this.#movingDrawingIndex = undefined;
         this.#resizingPointIndex = undefined;
         this.#movingStartPoint = undefined;
+
+        if (this.#freehandInProgress) {
+            this.#freehandInProgress = false;
+            if (this.#points.length > 5) {
+                const canvasSize = { width: this.#ctx.canvas.width, height: this.#ctx.canvas.height };
+                this.#drawings.push({
+                    points: this.#points,
+                    color: this.#drawingColor,
+                    type: this.#drawingType,
+                    canvasSize
+                });
+            }
+            this.#points = [];
+        }
+
         this.#redraw();
     }
 
@@ -376,6 +406,7 @@ export default class DrawCanvasShapes {
                 this.#ctx.moveTo(this.#points[i - 1].x, this.#points[i - 1].y);
                 this.#ctx.lineTo(this.#points[i].x, this.#points[i].y);
             }
+            this.#ctx.lineWidth = 2;
             this.#ctx.strokeStyle = this.#drawingColor;
             this.#ctx.stroke();
         }
@@ -383,7 +414,8 @@ export default class DrawCanvasShapes {
 
     #drawShapes() {
         this.#drawings.forEach((drawing) => {
-            this.#drawingHandlers[drawing.type]?.draw(drawing);
+            if (drawing.type === 'freehand') { new Freehand(this.#ctx).draw(drawing); }
+            else this.#drawingHandlers[drawing.type]?.draw(drawing);
             if (this.#drawingMode === 'draw') this.#crossIcon.draw(drawing);
         });
     }
