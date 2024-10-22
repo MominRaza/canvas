@@ -1,4 +1,4 @@
-import DrawCanvasShapes from '../main.js';
+import { DrawCanvasShapes } from '../main.js';
 
 const canvas = document.getElementById('canvas');
 const colorPicker = document.getElementById('colorPicker');

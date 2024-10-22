@@ -56,7 +56,7 @@ import Freehand from './shapes/freehand.js';
  * @property {number} [lineWidth]
  */
 
-export default class DrawCanvasShapes {
+export class DrawCanvasShapes {
     /**
      * @type {HTMLCanvasElement}
      */
