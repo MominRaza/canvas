@@ -12,12 +12,13 @@ export default class Line {
 
   /**
    * @param {import("../main").Drawing} drawing
+   * @throws {Error}
    */
   draw({ points: [start, end], color, lineWidth }) {
     this.ctx.beginPath();
     this.ctx.moveTo(start.x, start.y);
     this.ctx.lineTo(end.x, end.y);
-    // @ts-ignore
+    if (!lineWidth) throw new Error("lineWidth is required for Line drawings");
     this.ctx.lineWidth = lineWidth;
     this.ctx.strokeStyle = color;
     this.ctx.lineCap = "round";
@@ -32,7 +33,6 @@ export default class Line {
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
    * @param {number} lineWidth
-   * @returns {void}
    */
   click(points, drawings, x, y, color, drawingType, lineWidth) {
     points.push({ x, y });
@@ -49,7 +49,6 @@ export default class Line {
    * @param {number} y
    * @param {string} color
    * @param {number} lineWidth
-   * @returns {void}
    */
   drawPreview([start], x, y, color, lineWidth) {
     this.ctx.beginPath();

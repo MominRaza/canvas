@@ -10,6 +10,7 @@ export default class Freehand {
 
   /**
    * @param {import("../main").Drawing} drawing
+   * @throws {Error}
    */
   draw({ points, color, lineWidth }) {
     this.ctx.beginPath();
@@ -17,7 +18,7 @@ export default class Freehand {
     for (let i = 1; i < points.length; i++) {
       this.ctx.lineTo(points[i].x, points[i].y);
     }
-    // @ts-ignore
+    if (!lineWidth) throw new Error("lineWidth is required for Freehand drawings");
     this.ctx.lineWidth = lineWidth;
     this.ctx.strokeStyle = color;
     this.ctx.lineCap = "round";

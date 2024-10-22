@@ -35,7 +35,6 @@ export default class Polygon {
    * @param {number} y
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
-   * @returns {void}
    */
   click(points, drawings, x, y, color, drawingType) {
     if (points.length > 0 && Math.abs(x - points[0].x) < this.clickThreshold && Math.abs(y - points[0].y) < this.clickThreshold) {
@@ -54,7 +53,6 @@ export default class Polygon {
    * @param {number} x
    * @param {number} y
    * @param {string} color
-   * @returns {void}
    */
   drawPreview(points, x, y, color) {
     this.ctx.beginPath();

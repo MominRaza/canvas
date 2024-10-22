@@ -31,7 +31,6 @@ export default class Rectangle {
    * @param {number} y
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
-   * @returns {void}
    */
   click(points, drawings, x, y, color, drawingType) {
     points.push({ x, y });
@@ -47,7 +46,6 @@ export default class Rectangle {
    * @param {number} x
    * @param {number} y
    * @param {string} color
-   * @returns {void}
    */
   drawPreview(points, x, y, color) {
     const startX = points[0].x;

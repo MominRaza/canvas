@@ -12,11 +12,12 @@ export default class Circle {
 
   /**
    * @param {import("../main").Drawing} drawing
+   * @throws {Error}
    */
   draw({ points, color, radius }) {
     const { x, y } = points[0];
     this.ctx.beginPath();
-    // @ts-ignore
+    if (!radius) throw new Error('Circle radius is required');
     this.ctx.arc(x, y, radius, 0, 2 * Math.PI);
     this.ctx.fillStyle = color;
     this.ctx.fill();
@@ -29,7 +30,6 @@ export default class Circle {
    * @param {number} y
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
-   * @returns {void}
    */
   click(points, drawings, x, y, color, drawingType) {
     if (points.length === 0) {
@@ -48,7 +48,6 @@ export default class Circle {
    * @param {number} x
    * @param {number} y
    * @param {string} color
-   * @returns {void}
    */
   drawPreview(points, x, y, color) {
     const start = points[0];
@@ -64,9 +63,10 @@ export default class Circle {
    * @param {import("../main").Drawing} drawing
    * @param {import("../main").Point} point
    * @returns {boolean}
+   * @throws {Error}
    */
   isPointInside({ points: [center], radius }, { x, y }) {
-    // @ts-ignore
+    if (!radius) throw new Error('Circle radius is required');
     return Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2) <= radius;
   }
 
@@ -74,10 +74,11 @@ export default class Circle {
    * @param {import("../main").Drawing} drawing
    * @param {import("../main").Point} point
    * @returns {number}
+   * @throws {Error}
    */
   isPointOnPoint({ points: [center], radius }, { x, y }) {
     const distance = Math.sqrt((center.x - x) ** 2 + (center.y - y) ** 2);
-    // @ts-ignore
+    if (!radius) throw new Error('Circle radius is required');
     return distance >= radius - this.clickThreshold / 8 && distance <= radius + this.clickThreshold / 8 ? 0 : -1;
   }
 }

@@ -14,7 +14,6 @@ export default class CrossIcon {
 
   /**
   * @param {import("../main").Drawing} drawing
-  * @returns {void}
   */
   draw(drawing) {
     if (!this.showCrossIcon) return;
@@ -38,6 +37,7 @@ export default class CrossIcon {
   /**
    * @param {import("../main").Drawing} drawing
    * @returns {import("../main").Point}
+   * @throws {Error}
    */
   #topRightPoint({ points, type, radius }) {
     if (type === 'rectangle') {
@@ -51,10 +51,9 @@ export default class CrossIcon {
     if (type === 'circle') {
       const start = points[0];
       const angle = Math.PI / 4;
+      if (!radius) throw new Error('Circle radius is required');
       return {
-        // @ts-ignore
         x: start.x + radius * Math.cos(angle),
-        // @ts-ignore
         y: start.y - radius * Math.sin(angle)
       };
     }
@@ -73,6 +72,10 @@ export default class CrossIcon {
     return topRightPoint;
   }
 
+  /**
+   * @param {import("../main").Point} point
+   * @returns {number}
+   */
   #calculateDistance(point) {
     const xDistance = this.ctx.canvas.width - point.x;
     const yDistance = point.y;
@@ -105,7 +108,6 @@ export default class CrossIcon {
    * @param {Array<import("../main").Drawing>} drawings
    * @param {number} x
    * @param {number} y
-   * @returns {void}
    */
   hover(drawings, x, y) {
     if (!this.showCrossIcon) return;
