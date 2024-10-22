@@ -19,6 +19,8 @@ export default class Freehand {
     }
     this.ctx.lineWidth = 2;
     this.ctx.strokeStyle = color;
+    this.ctx.lineCap = "round";
+    this.ctx.lineJoin = "round";
     this.ctx.stroke();
   }
 }
