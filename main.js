@@ -145,6 +145,9 @@ export default class DrawCanvasShapes {
      */
     #drawingHandlers;
 
+    /**
+     * @type {boolean | undefined}
+     */
     #freehandInProgress = false;
 
     /**
@@ -227,6 +230,10 @@ export default class DrawCanvasShapes {
 
     #canvasClick = (event) => {
         if (this.#drawingMode !== 'draw') return;
+        if (this.#freehandInProgress === undefined) {
+            this.#freehandInProgress = false;
+            return;
+        }
 
         const { x, y } = this.#getMousePosition(event);
 
@@ -356,7 +363,6 @@ export default class DrawCanvasShapes {
         this.#movingStartPoint = undefined;
 
         if (this.#freehandInProgress) {
-            this.#freehandInProgress = false;
             if (this.#points.length > 5) {
                 const canvasSize = { width: this.#ctx.canvas.width, height: this.#ctx.canvas.height };
                 this.#drawings.push({
@@ -365,6 +371,8 @@ export default class DrawCanvasShapes {
                     type: this.#drawingType,
                     canvasSize
                 });
+
+                this.#freehandInProgress = undefined;
             }
             this.#points = [];
         }
