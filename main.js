@@ -173,7 +173,7 @@ export class DrawCanvasShapes {
      */
     constructor({
         canvas,
-        canvasSize = { width: 497, height: 300 },
+        canvasSize = { width: 1000, height: 500 },
         gridSize = 20,
         gridColor = '#ddd',
         showGrid = false,
@@ -524,14 +524,6 @@ export class DrawCanvasShapes {
      */
     set gridSize(gridSize) {
         this.#gridSize = gridSize;
-        this.#redraw();
-    }
-
-    /**
-     * @param {string} gridColor
-     */
-    set gridColor(gridColor) {
-        this.#gridColor = gridColor;
         this.#redraw();
     }
 

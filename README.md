@@ -30,7 +30,7 @@ const canvas = document.getElementById('canvas');
 
 const drawer = new DrawCanvasShapes({
   canvas, // required
-  canvasSize: { width: 497, height: 300 },
+  canvasSize: { width: 1000, height: 500 },
   gridSize: 20,
   gridColor: '#ddd',
   showGrid: false,
@@ -41,18 +41,20 @@ const drawer = new DrawCanvasShapes({
   crossIconSize: 10,
   showCrossIcon: true,
   clickThreshold: 20,
+  resizeOnCanvasSizeChange: false,
+  lineWidth: 2,
 });
 
 // use setter methods to update canvas properties as needed
-drawer.canvasSize = { width: 500, height: 300 };
+drawer.canvasSize = { width: 1000, height: 500 };
 drawer.gridSize = 20;
-drawer.gridColor = '#ddd';
 drawer.showGrid = true;
 drawer.drawings = [];
 drawer.drawingType = 'polygon';
 drawer.drawingColor = '#000';
 drawer.drawingMode = 'draw';
 drawer.showCrossIcon = true;
+drawer.lineWidth = 2;
 
 // use cancelDrawing method to cancel the current drawing
 drawer.cancelDrawing();
