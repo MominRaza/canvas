@@ -13,12 +13,14 @@ export default class Line {
   /**
    * @param {import("../main").Drawing} drawing
    */
-  draw({ points: [start, end], color }) {
+  draw({ points: [start, end], color, lineWidth }) {
     this.ctx.beginPath();
     this.ctx.moveTo(start.x, start.y);
     this.ctx.lineTo(end.x, end.y);
-    this.ctx.lineWidth = 2;
+    // @ts-ignore
+    this.ctx.lineWidth = lineWidth;
     this.ctx.strokeStyle = color;
+    this.ctx.lineCap = "round";
     this.ctx.stroke();
   }
 
@@ -29,13 +31,14 @@ export default class Line {
    * @param {number} y
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
+   * @param {number} lineWidth
    * @returns {void}
    */
-  click(points, drawings, x, y, color, drawingType) {
+  click(points, drawings, x, y, color, drawingType, lineWidth) {
     points.push({ x, y });
     if (points.length === 2) {
       const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
-      drawings.push({ points: [...points], color, type: drawingType, canvasSize });
+      drawings.push({ points: [...points], color, type: drawingType, canvasSize, lineWidth });
       points.length = 0;
     }
   }
@@ -45,14 +48,16 @@ export default class Line {
    * @param {number} x
    * @param {number} y
    * @param {string} color
+   * @param {number} lineWidth
    * @returns {void}
    */
-  drawPreview([start], x, y, color) {
+  drawPreview([start], x, y, color, lineWidth) {
     this.ctx.beginPath();
     this.ctx.moveTo(start.x, start.y);
     this.ctx.lineTo(x, y);
-    this.ctx.lineWidth = 2;
+    this.ctx.lineWidth = lineWidth;
     this.ctx.strokeStyle = color;
+    this.ctx.lineCap = "round";
     this.ctx.stroke();
   }
 

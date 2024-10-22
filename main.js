@@ -20,6 +20,7 @@ import Freehand from './shapes/freehand.js';
  * @property {string} color
  * @property {DrawingType} type
  * @property {number} [radius]
+ * @property {number} [lineWidth]
  * @property {CanvasSize} canvasSize
  */
 
@@ -52,6 +53,7 @@ import Freehand from './shapes/freehand.js';
  * @property {boolean} [showCrossIcon]
  * @property {number} [clickThreshold]
  * @property {boolean} [resizeOnCanvasSizeChange]
+ * @property {number} [lineWidth]
  */
 
 export default class DrawCanvasShapes {
@@ -161,6 +163,11 @@ export default class DrawCanvasShapes {
     #freehand;
 
     /**
+     * @type {number}
+     */
+    #lineWidth;
+
+    /**
      * @param {DrawCanvasShapesOptions} options
      * @throws {Error}
      */
@@ -178,6 +185,7 @@ export default class DrawCanvasShapes {
         showCrossIcon = true,
         clickThreshold = 20,
         resizeOnCanvasSizeChange = false,
+        lineWidth = 2,
     }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
 
@@ -195,6 +203,7 @@ export default class DrawCanvasShapes {
         this.#showCrossIcon = showCrossIcon;
         this.#clickThreshold = clickThreshold;
         this.#resizeOnCanvasSizeChange = resizeOnCanvasSizeChange;
+        this.#lineWidth = lineWidth;
 
         this.#init();
     }
@@ -241,7 +250,7 @@ export default class DrawCanvasShapes {
             return this.#redraw();
         }
 
-        this.#drawingHandlers[this.#drawingType]?.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType);
+        this.#drawingHandlers[this.#drawingType]?.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#lineWidth);
 
         this.#redraw();
     }
@@ -304,7 +313,7 @@ export default class DrawCanvasShapes {
             return;
         }
 
-        this.#drawingHandlers[this.#drawingType]?.drawPreview(this.#points, x, y, this.#drawingColor);
+        this.#drawingHandlers[this.#drawingType]?.drawPreview(this.#points, x, y, this.#drawingColor, this.#lineWidth);
     }
 
     #moveModeMouseMove(x, y) {
@@ -369,7 +378,8 @@ export default class DrawCanvasShapes {
                     points: this.#points,
                     color: this.#drawingColor,
                     type: this.#drawingType,
-                    canvasSize
+                    canvasSize,
+                    lineWidth: this.#lineWidth,
                 });
 
                 this.#freehandInProgress = undefined;
@@ -429,7 +439,14 @@ export default class DrawCanvasShapes {
                 this.#ctx.moveTo(this.#points[i - 1].x, this.#points[i - 1].y);
                 this.#ctx.lineTo(this.#points[i].x, this.#points[i].y);
             }
-            this.#ctx.lineWidth = 2;
+            if (this.#drawingType === 'freehand') {
+                this.#ctx.lineWidth = this.#lineWidth;
+                this.#ctx.lineCap = "round";
+                this.#ctx.lineJoin = "round";
+            } else {
+                this.#ctx.lineWidth = 2;
+            }
+
             this.#ctx.strokeStyle = this.#drawingColor;
             this.#ctx.stroke();
         }
@@ -525,6 +542,13 @@ export default class DrawCanvasShapes {
         this.#showCrossIcon = showCrossIcon;
         this.#crossIcon.showCrossIcon = showCrossIcon;
         this.#redraw();
+    }
+
+    /**
+     * @param {number} lineWidth
+     */
+    set lineWidth(lineWidth) {
+        this.#lineWidth = lineWidth;
     }
 
     // Public getters

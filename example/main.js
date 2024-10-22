@@ -10,6 +10,7 @@ const drawingType = document.getElementById('drawingType');
 const cancelButton = document.getElementById('cancelButton');
 const clearButton = document.getElementById('clearButton');
 const drawMode = document.getElementById('drawMode');
+const lineWidth = document.getElementById('lineWidth');
 
 const drawer = new DrawCanvasShapes({
   canvas,
@@ -21,6 +22,7 @@ const drawer = new DrawCanvasShapes({
   drawingMode: drawMode.value,
   drawings: JSON.parse(localStorage.getItem('drawings')) || [],
   resizeOnCanvasSizeChange: true,
+  lineWidth: parseInt(lineWidth.value),
 });
 
 height.addEventListener('change', (event) => {
@@ -61,4 +63,8 @@ drawMode.addEventListener('change', (event) => {
 
 document.getElementById('saveButton').addEventListener('click', () => {
   localStorage.setItem('drawings', JSON.stringify(drawer.drawings));
+});
+
+lineWidth.addEventListener('change', (event) => {
+  drawer.lineWidth = parseInt(event.target.value);
 });
