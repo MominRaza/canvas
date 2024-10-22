@@ -1,0 +1,67 @@
+<div class="canvas-group">
+    <div class="canvas-container">
+        <div class="behind-canvas">
+            <ng-content></ng-content>
+        </div>
+        <canvas #canvas class="canvas"></canvas>
+    </div>
+    <div class="canvas-tools">
+        <mat-form-field>
+            <mat-label>Draw Mode</mat-label>
+            <mat-select [(ngModel)]="selectedDrawingMode" (selectionChange)="setDrawingMode($event.value)">
+                <mat-option value="draw">Draw</mat-option>
+                <mat-option value="move">Move</mat-option>
+                <mat-option value="resize">Resize</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Drawing Type</mat-label>
+            <mat-select [(ngModel)]="selectedDrawingType" (selectionChange)="setDrawingType($event.value)">
+                <mat-option value="line">Line</mat-option>
+                <mat-option value="rectangle">Rectangle</mat-option>
+                <mat-option value="circle">Circle</mat-option>
+                <mat-option value="triangle">Triangle</mat-option>
+                <mat-option value="polygon" selected>Polygon</mat-option>
+                <mat-option value="freehand">Freehand</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-slider min="2" max="50">
+            <input matSliderThumb [(ngModel)]="lineWidth" (valueChange)="setLineWidth($event)">
+        </mat-slider>
+
+        <mat-form-field>
+            <mat-label>Color Picker</mat-label>
+            <mat-select [(ngModel)]="selectedDrawingColor" (selectionChange)="setDrawingColor($event.value)">
+                <mat-option value="#ff000090">Red</mat-option>
+                <mat-option value="#ffa50090">Orange</mat-option>
+                <mat-option value="#ffff0090">Yellow</mat-option>
+                <mat-option value="#00ff0090">Green</mat-option>
+                <mat-option value="#0000ff90" selected>Blue</mat-option>
+                <mat-option value="#4b008290">Indigo</mat-option>
+                <mat-option value="#ee82ee90">Violet</mat-option>
+                <mat-option value="#00000090">Black</mat-option>
+                <mat-option value="#ffffff90">White</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-form-field>
+            <mat-label>Grid Size</mat-label>
+            <mat-select [(ngModel)]="gridSize" (selectionChange)="setGridSize($event.value)">
+                <mat-option value="10">10x10</mat-option>
+                <mat-option value="20">20x20</mat-option>
+                <mat-option value="30">30x30</mat-option>
+                <mat-option value="40">40x40</mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-checkbox id="showGrid" [(ngModel)]="showGrid" (change)="setShowGrid($event.checked)">
+            Show Grid
+        </mat-checkbox>
+
+        <button mat-raised-button (click)="cancelDrawing()">Cancel</button>
+        <button mat-raised-button (click)="clearCanvas()">Clear</button>
+        <button mat-raised-button (click)="saveCanvas()">Save</button>
+    </div>
+</div>
