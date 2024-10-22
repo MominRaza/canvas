@@ -59,6 +59,6 @@ drawMode.addEventListener('change', (event) => {
   drawer.drawingMode = event.target.value;
 });
 
-document.getElementById('save').addEventListener('click', () => {
+document.getElementById('saveButton').addEventListener('click', () => {
   localStorage.setItem('drawings', JSON.stringify(drawer.drawings));
 });
