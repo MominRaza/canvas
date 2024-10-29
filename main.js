@@ -66,6 +66,8 @@ import Freehand from './shapes/freehand.js';
  * @property {string} [drawingColor] - The color of the drawing.
  * @property {DrawingMode} [drawingMode] - The mode of drawing.
  * @property {number} [crossIconSize] - The size of the cross icon.
+ * @property {string} [crossIconColor] - The color of the cross icon.
+ * @property {string} [crossIconBackgroundColor] - The background color of the cross icon.
  * @property {boolean} [showCrossIcon] - Wether to show the cross icon or not.
  * @property {number} [clickThreshold] - The threshold for detecting final click in polygons.
  * @property {boolean} [resizeOnCanvasSizeChange] - Wether to resize the drawings when the canvas size changes.
@@ -120,6 +122,18 @@ export class DrawCanvasShapes {
      * @type {number}
      */
     #crossIconSize;
+
+    /**
+     * The color of the cross icon.
+     * @type {string}
+     */
+    #crossIconColor;
+
+    /**
+     * The background color of the cross icon.
+     * @type {string}
+     */
+    #crossIconBackgroundColor;
 
     /**
      * The threshold for detecting final click in polygons.
@@ -221,6 +235,8 @@ export class DrawCanvasShapes {
         drawingColor = '#000',
         drawingMode = 'draw',
         crossIconSize = 10,
+        crossIconColor = '#000',
+        crossIconBackgroundColor = '#fff',
         showCrossIcon = true,
         clickThreshold = 20,
         resizeOnCanvasSizeChange = false,
@@ -240,6 +256,8 @@ export class DrawCanvasShapes {
         this.#drawingColor = drawingColor;
         this.#drawingMode = drawingMode;
         this.#crossIconSize = crossIconSize;
+        this.#crossIconColor = crossIconColor;
+        this.#crossIconBackgroundColor = crossIconBackgroundColor;
         this.#showCrossIcon = showCrossIcon;
         this.#clickThreshold = clickThreshold;
         this.#resizeOnCanvasSizeChange = resizeOnCanvasSizeChange;
@@ -273,7 +291,7 @@ export class DrawCanvasShapes {
             line: new Line(this.#ctx, this.#clickThreshold),
         };
         this.#freehand = new Freehand(this.#ctx);
-        this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#showCrossIcon);
+        this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#crossIconColor, this.#crossIconBackgroundColor, this.#showCrossIcon);
     }
 
     /**

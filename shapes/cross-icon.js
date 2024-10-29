@@ -4,11 +4,15 @@ export default class CrossIcon {
   /**
    * @param {CanvasRenderingContext2D} ctx
    * @param {number} crossIconSize
+   * @param {string} crossIconColor
+   * @param {string} crossIconBackgroundColor
    * @param {boolean} showCrossIcon
    */
-  constructor(ctx, crossIconSize, showCrossIcon) {
+  constructor(ctx, crossIconSize, crossIconColor, crossIconBackgroundColor, showCrossIcon) {
     this.ctx = ctx;
     this.crossIconSize = crossIconSize;
+    this.crossIconColor = crossIconColor;
+    this.crossIconBackgroundColor = crossIconBackgroundColor;
     this.showCrossIcon = showCrossIcon;
   }
 
@@ -20,9 +24,9 @@ export default class CrossIcon {
     const { x, y } = this.#topRightPoint(drawing);
     this.ctx.beginPath();
     this.ctx.arc(x, y, this.crossIconSize, 0, 2 * Math.PI);
-    this.ctx.fillStyle = 'white';
+    this.ctx.fillStyle = this.crossIconBackgroundColor;
     this.ctx.fill();
-    this.ctx.strokeStyle = drawing.color;
+    this.ctx.strokeStyle = this.crossIconColor;
     this.ctx.lineWidth = 2;
     this.ctx.stroke();
 
