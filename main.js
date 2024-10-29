@@ -496,15 +496,24 @@ export class DrawCanvasShapes {
                 const widthRatio = this.#canvas.width / drawing.canvasSize.width;
                 const heightRatio = this.#canvas.height / drawing.canvasSize.height;
 
-                this.#ctx.save();
-                this.#ctx.scale(widthRatio, heightRatio);
+                if (!Number.isNaN(widthRatio) && !Number.isNaN(heightRatio) && heightRatio !== 0 && widthRatio !== 0 && (widthRatio !== 1 || heightRatio !== 1)) {
+                    drawing.points = drawing.points.map(point => ({
+                        x: point.x * widthRatio,
+                        y: point.y * heightRatio
+                    }));
+
+                    drawing.canvasSize = { width: this.#canvas.width, height: this.#canvas.height };
+
+                    if (drawing.type === 'circle') {
+                        const [center, point] = drawing.points;
+                        drawing.radius = Math.sqrt((center.x - point.x) ** 2 + (center.y - point.y) ** 2);
+                    }
+                }
             }
 
             if (drawing.type === 'freehand') this.#freehand?.draw(drawing);
             else this.#drawingHandlers?.[drawing.type]?.draw(drawing);
             if (this.#drawingMode === 'draw') this.#crossIcon?.draw(drawing);
-
-            if (this.#resizeOnCanvasSizeChange) this.#ctx.restore();
         });
     }
 
