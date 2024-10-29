@@ -360,7 +360,7 @@ export class DrawCanvasShapes {
      */
     #resizeModeMouseMove(x, y) {
         if (this.#movingDrawingIndex === undefined || this.#resizingPointIndex === undefined || this.#movingStartPoint === undefined) {
-            this.#canvas.style.cursor = this.drawings.some((drawing) => this.#isPointOnPoint(drawing, { x, y }) !== -1) ? 'move' : 'default';
+            this.#canvas.style.cursor = this.#drawings.some((drawing) => this.#isPointOnPoint(drawing, { x, y }) !== -1) ? 'move' : 'default';
         } else {
             const drawing = this.#drawings[this.#movingDrawingIndex];
             const dx = x - this.#movingStartPoint.x;
