@@ -26,15 +26,15 @@ const drawer = new DrawCanvasShapes({
 });
 
 height.addEventListener('change', (event) => {
-  drawer.canvasSize = { width: width.value, height: event.target.value };
+  drawer.setCanvasSize({ width: width.value, height: event.target.value });
 });
 
 width.addEventListener('change', (event) => {
-  drawer.canvasSize = { width: event.target.value, height: height.value };
+  drawer.setCanvasSize({ width: event.target.value, height: height.value });
 });
 
 colorPicker.addEventListener('change', (event) => {
-  drawer.drawingColor = event.target.value;
+  drawer.setDrawingColor(event.target.value);
 });
 
 gridSize.addEventListener('change', (event) => {
@@ -46,7 +46,7 @@ showGrid.addEventListener('change', (event) => {
 });
 
 drawingType.addEventListener('change', (event) => {
-  drawer.drawingType = event.target.value;
+  drawer.setDrawingType(event.target.value);
 });
 
 cancelButton.addEventListener('click', () => {
@@ -58,13 +58,13 @@ clearButton.addEventListener('click', () => {
 });
 
 drawMode.addEventListener('change', (event) => {
-  drawer.drawingMode = event.target.value;
+  drawer.setDrawingMode(event.target.value);
 });
 
 document.getElementById('saveButton').addEventListener('click', () => {
-  localStorage.setItem('drawings', JSON.stringify(drawer.drawings));
+  localStorage.setItem('drawings', JSON.stringify(drawer.getDrawings()));
 });
 
 lineWidth.addEventListener('change', (event) => {
-  drawer.lineWidth = parseInt(event.target.value);
+  drawer.setLineWidth(parseInt(event.target.value));
 });
