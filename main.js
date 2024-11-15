@@ -72,6 +72,7 @@ import Freehand from './shapes/freehand.js';
  * @property {number} [clickThreshold] - The threshold for detecting final click in polygons.
  * @property {boolean} [resizeOnCanvasSizeChange] - Wether to resize the drawings when the canvas size changes.
  * @property {number} [lineWidth] - The line width of the drawing (only for line and freehand).
+ * @property {number} [drawingsLimit] - The limit of drawings that can be drawn on the canvas.
  */
 
 export class DrawCanvasShapes {
@@ -220,6 +221,12 @@ export class DrawCanvasShapes {
     #lineWidth;
 
     /**
+     * The limit of drawings that can be drawn on the canvas.
+     * @type {number | undefined}
+     */
+    #drawingsLimit;
+
+    /**
      * Creates a new instance of DrawCanvasShapes.
      * @param {DrawCanvasShapesOptions} options - The options for drawing shapes on the canvas.
      * @throws {Error} - If the canvas element is not provided.
@@ -241,6 +248,7 @@ export class DrawCanvasShapes {
         clickThreshold = 20,
         resizeOnCanvasSizeChange = false,
         lineWidth = 2,
+        drawingsLimit,
     }) {
         if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
 
@@ -262,6 +270,7 @@ export class DrawCanvasShapes {
         this.#clickThreshold = clickThreshold;
         this.#resizeOnCanvasSizeChange = resizeOnCanvasSizeChange;
         this.#lineWidth = lineWidth;
+        this.#drawingsLimit = drawingsLimit;
 
         const context = this.#canvas.getContext('2d');
         if (!context) throw new Error('Canvas 2D context is not supported');
@@ -323,7 +332,12 @@ export class DrawCanvasShapes {
             return this.#redraw();
         }
 
-        this.#drawingHandlers?.[this.#drawingType]?.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#lineWidth);
+        if (this.#drawingsLimit !== undefined && this.#drawings.length >= this.#drawingsLimit) {
+            const limitEvent = new CustomEvent('drawingLimitReached', { detail: { limit: this.#drawingsLimit } });
+            this.#canvas.dispatchEvent(limitEvent);
+            return;
+        }
+
 
         this.#redraw();
     }
@@ -341,6 +355,9 @@ export class DrawCanvasShapes {
      */
     #canvasMouseDown = (event) => {
         if (this.#drawingMode === 'draw' && this.#drawingType === 'freehand') {
+            if (this.#drawingsLimit !== undefined && this.#drawings.length >= this.#drawingsLimit) {
+                return;
+            }
             this.#freehandInProgress = true;
             this.#points.push(this.#getMousePosition(event));
             return;
