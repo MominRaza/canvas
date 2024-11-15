@@ -30,16 +30,18 @@ export default class Circle {
    * @param {number} y
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
+   * @returns {boolean}
    */
   click(points, drawings, x, y, color, drawingType) {
     points.push({ x, y });
-    if (points.length === 1) return;
+    if (points.length === 1) return false;
 
     const center = points[0];
     const radius = Math.sqrt((x - center.x) ** 2 + (y - center.y) ** 2);
     const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
     drawings.push({ points: [...points], color, type: drawingType, radius, canvasSize });
     points.length = 0;
+    return true;
   }
 
   /**

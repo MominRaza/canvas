@@ -329,6 +329,7 @@ export class DrawCanvasShapes {
         const { x, y } = this.#getMousePosition(event);
 
         if (this.#points.length === 0 && this.#crossIcon?.click(this.#drawings, x, y)) {
+            this.#dispatchChangeEvent();
             return this.#redraw();
         }
 
@@ -338,6 +339,9 @@ export class DrawCanvasShapes {
             return;
         }
 
+        if (this.#drawingHandlers?.[this.#drawingType]?.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#lineWidth)) {
+            this.#dispatchChangeEvent();
+        }
 
         this.#redraw();
     }
@@ -507,6 +511,14 @@ export class DrawCanvasShapes {
         }
 
         this.#redraw();
+    }
+
+    /**
+     * Dispatches a custom event when the drawings change.
+     */
+    #dispatchChangeEvent() {
+        const drawingEvent = new CustomEvent('drawingsChange', { detail: { drawings: this.#drawings } })
+        this.#canvas.dispatchEvent(drawingEvent);
     }
 
     /**

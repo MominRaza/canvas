@@ -33,6 +33,7 @@ export default class Line {
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
    * @param {number} lineWidth
+   * @returns {boolean}
    */
   click(points, drawings, x, y, color, drawingType, lineWidth) {
     points.push({ x, y });
@@ -40,7 +41,9 @@ export default class Line {
       const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
       drawings.push({ points: [...points], color, type: drawingType, canvasSize, lineWidth });
       points.length = 0;
+      return true;
     }
+    return false;
   }
 
   /**

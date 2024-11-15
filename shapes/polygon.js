@@ -35,6 +35,7 @@ export default class Polygon {
    * @param {number} y
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
+   * @returns {boolean}
    */
   click(points, drawings, x, y, color, drawingType) {
     if (points.length > 0 && Math.abs(x - points[0].x) < this.clickThreshold && Math.abs(y - points[0].y) < this.clickThreshold) {
@@ -42,10 +43,12 @@ export default class Polygon {
         const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
         drawings.push({ points: [...points], color, type: drawingType, canvasSize });
         points.length = 0;
+        return true;
       }
     } else {
       points.push({ x, y });
     }
+    return false;
   }
 
   /**

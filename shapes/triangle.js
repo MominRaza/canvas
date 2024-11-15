@@ -30,6 +30,7 @@ export default class Triangle {
    * @param {number} y
    * @param {string} color
    * @param {import("../main").DrawingType} drawingType
+   * @returns {boolean}
    */
   click(points, drawings, x, y, color, drawingType) {
     points.push({ x, y });
@@ -41,7 +42,9 @@ export default class Triangle {
       const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
       drawings.push({ points: [...points, thirdPoint], color, type: drawingType, canvasSize });
       points.length = 0;
+      return true;
     }
+    return false;
   }
 
   /**
