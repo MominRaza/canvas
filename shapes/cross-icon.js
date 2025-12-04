@@ -20,7 +20,7 @@ export default class CrossIcon {
   * @param {import("../main").Drawing} drawing
   */
   draw(drawing) {
-    if (!this.showCrossIcon) return;
+    if (!this.showCrossIcon || drawing.fullView) return;
     const { x, y } = this.#topRightPoint(drawing);
     this.ctx.beginPath();
     this.ctx.arc(x, y, this.crossIconSize, 0, 2 * Math.PI);
@@ -96,6 +96,7 @@ export default class CrossIcon {
     if (!this.showCrossIcon) return false;
 
     for (let i = drawings.length - 1; i >= 0; i--) {
+      if (drawings[i].fullView) break;
       const topRight = this.#topRightPoint(drawings[i]);
 
       if (Math.abs(x - topRight.x) < this.crossIconSize * 1.2 && Math.abs(y - topRight.y) < this.crossIconSize * 1.2) {
@@ -119,6 +120,7 @@ export default class CrossIcon {
     let cursorStyle = 'crosshair';
 
     for (let i = drawings.length - 1; i >= 0; i--) {
+      if (drawings[i].fullView) break;
       const topRight = this.#topRightPoint(drawings[i]);
 
       if (Math.abs(x - topRight.x) < this.crossIconSize * 1.2 && Math.abs(y - topRight.y) < this.crossIconSize * 1.2) {

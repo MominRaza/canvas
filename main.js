@@ -24,6 +24,7 @@ import Freehand from './shapes/freehand.js';
  * @property {number} [radius] - The radius of the drawing (only for circle).
  * @property {number} [lineWidth] - The line width of the drawing (only for line and freehand).
  * @property {CanvasSize} canvasSize - The size of the canvas when the drawing was created.
+ * @property {boolean} [fullView] - Wether the drawing is in full view or not.
  */
 
 /**
