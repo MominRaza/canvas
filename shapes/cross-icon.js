@@ -47,7 +47,7 @@ export default class CrossIcon {
      */
     #topRightPoint({ points, type, radius }) {
         if (type === 'rectangle') {
-            const [start, end] = points;
+            const [start, , end] = points;
             return {
                 x: Math.max(start.x, end.x),
                 y: Math.min(start.y, end.y),
@@ -69,7 +69,7 @@ export default class CrossIcon {
         let topRightPoint = points[0];
         let topRightDistance = this.#calculateDistance(points[0]);
 
-        points.forEach(point => {
+        points.forEach((point) => {
             const distance = this.#calculateDistance(point);
             if (distance < topRightDistance) {
                 topRightDistance = distance;

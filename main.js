@@ -504,14 +504,21 @@ export class DrawCanvasShapes {
             const dx = x - this.#movingStartPoint.x;
             const dy = y - this.#movingStartPoint.y;
 
-            if (drawing.type === 'rectangle' && this.#resizingPointIndex > 1) {
-                const [start, end] = drawing.points;
-                if (this.#resizingPointIndex === 2) {
-                    start.x += dx;
-                    end.y += dy;
+            if (drawing.type === 'rectangle') {
+                const pts = drawing.points;
+                const i = this.#resizingPointIndex;
+                const next = (i + 1) % 4;
+                const prev = (i + 3) % 4;
+
+                pts[i].x += dx;
+                pts[i].y += dy;
+
+                if (i % 2 === 0) {
+                    pts[next].x = pts[i].x;
+                    pts[prev].y = pts[i].y;
                 } else {
-                    end.x += dx;
-                    start.y += dy;
+                    pts[next].y = pts[i].y;
+                    pts[prev].x = pts[i].x;
                 }
             } else if (drawing.type === 'circle') {
                 const center = drawing.points[0];

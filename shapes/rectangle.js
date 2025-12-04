@@ -18,7 +18,8 @@ export default class Rectangle {
             return;
         }
 
-        const [start, end] = points;
+        // Use only 1st and 3rd points for drawing
+        const [start, , end] = points;
         const width = end.x - start.x;
         const height = end.y - start.y;
 
@@ -38,8 +39,14 @@ export default class Rectangle {
     click(points, drawings, x, y, color, drawingType) {
         points.push({ x, y });
         if (points.length === 2) {
+            const [p1, p3] = points;
+            // Create the other two points of the rectangle
+            const p2 = { x: p3.x, y: p1.y };
+            const p4 = { x: p1.x, y: p3.y };
+
+            const allPoints = [p1, p2, p3, p4];
             const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
-            drawings.push({ points: [...points], color, type: drawingType, canvasSize });
+            drawings.push({ points: [...allPoints], color, type: drawingType, canvasSize });
             points.length = 0;
             return true;
         }
@@ -70,7 +77,7 @@ export default class Rectangle {
      * @param {import("../main").Point} point
      * @returns {boolean}
      */
-    isPointInside({ points: [start, end] }, { x, y }) {
+    isPointInside({ points: [start, , end] }, { x, y }) {
         let { x: x1, y: y1 } = start;
         let { x: x2, y: y2 } = end;
 
@@ -89,8 +96,7 @@ export default class Rectangle {
      * @param {import("../main").Point} point
      * @returns {number}
      */
-    isPointOnPoint({ points: [start, end] }, { x, y }) {
-        const points = [start, end, { x: start.x, y: end.y }, { x: end.x, y: start.y }];
+    isPointOnPoint({ points }, { x, y }) {
         return points.findIndex(
             point => Math.abs(point.x - x) < this.clickThreshold / 4 && Math.abs(point.y - y) < this.clickThreshold / 4
         );
