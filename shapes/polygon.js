@@ -4,10 +4,12 @@ export default class Polygon {
     /**
      * @param {CanvasRenderingContext2D} ctx
      * @param {number} clickThreshold
+     * @param {number} maxPoints
      */
-    constructor(ctx, clickThreshold) {
+    constructor(ctx, clickThreshold, maxPoints) {
         this.ctx = ctx;
         this.clickThreshold = clickThreshold;
+        this.maxPoints = maxPoints;
     }
 
     /**
@@ -37,23 +39,26 @@ export default class Polygon {
      * @param {number} y
      * @param {string} color
      * @param {import("../main").DrawingType} drawingType
-     * @returns {boolean}
+     * @returns {boolean} - Returns true if the polygon is closed and ready to be saved
      */
     click(points, drawings, x, y, color, drawingType) {
-        if (
-            points.length > 0 &&
-            Math.abs(x - points[0].x) < this.clickThreshold &&
-            Math.abs(y - points[0].y) < this.clickThreshold
-        ) {
-            if (points.length > 2) {
-                const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
-                drawings.push({ points: [...points], color, type: drawingType, canvasSize });
-                points.length = 0;
-                return true;
+        const shouldClose =
+            (points.length > 2 &&
+                Math.abs(x - points[0].x) < this.clickThreshold &&
+                Math.abs(y - points[0].y) < this.clickThreshold) ||
+            points.length === this.maxPoints - 1;
+
+        if (shouldClose) {
+            if (points.length === this.maxPoints - 1) {
+                points.push({ x, y });
             }
-        } else {
-            points.push({ x, y });
+            const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
+            drawings.push({ points: [...points], color, type: drawingType, canvasSize });
+            points.length = 0;
+            return true;
         }
+
+        points.push({ x, y });
         return false;
     }
 

@@ -71,6 +71,7 @@ import Freehand from './shapes/freehand.js';
  * @property {string} [crossIconBackgroundColor] - The background color of the cross icon.
  * @property {boolean} [showCrossIcon] - Wether to show the cross icon or not.
  * @property {number} [clickThreshold] - The threshold for detecting final click in polygons.
+ * @property {number} [maxPoints] - The maximum number of points allowed in a polygon.
  * @property {boolean} [resizeOnCanvasSizeChange] - Wether to resize the drawings when the canvas size changes.
  * @property {number} [lineWidth] - The line width of the drawing (only for line and freehand).
  * @property {number} [drawingsLimit] - The limit of drawings that can be drawn on the canvas.
@@ -142,6 +143,12 @@ export class DrawCanvasShapes {
      * @type {number}
      */
     #clickThreshold;
+
+    /**
+     * The maximum number of points allowed in a polygon.
+     * @type {number}
+     */
+    #maxPoints;
 
     /**
      * The type of drawing to draw.
@@ -247,6 +254,7 @@ export class DrawCanvasShapes {
         crossIconBackgroundColor = '#fff',
         showCrossIcon = true,
         clickThreshold = 20,
+        maxPoints = 100,
         resizeOnCanvasSizeChange = false,
         lineWidth = 2,
         drawingsLimit,
@@ -270,6 +278,7 @@ export class DrawCanvasShapes {
         this.#crossIconBackgroundColor = crossIconBackgroundColor;
         this.#showCrossIcon = showCrossIcon;
         this.#clickThreshold = clickThreshold;
+        this.#maxPoints = maxPoints;
         this.#resizeOnCanvasSizeChange = resizeOnCanvasSizeChange;
         this.#lineWidth = lineWidth;
         this.#drawingsLimit = drawingsLimit;
@@ -297,7 +306,7 @@ export class DrawCanvasShapes {
      */
     #initializeShapes() {
         this.#drawingHandlers = {
-            polygon: new Polygon(this.#ctx, this.#clickThreshold),
+            polygon: new Polygon(this.#ctx, this.#clickThreshold, this.#maxPoints),
             rectangle: new Rectangle(this.#ctx, this.#clickThreshold),
             circle: new Circle(this.#ctx, this.#clickThreshold),
             triangle: new Triangle(this.#ctx, this.#clickThreshold),
