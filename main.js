@@ -822,6 +822,14 @@ export class DrawCanvasShapes {
         this.#lineWidth = lineWidth;
     }
 
+    /**
+     * Sets the limit of drawings that can be drawn on the canvas.
+     * @param {number|undefined} limit - The new limit for the number of drawings.
+     */
+    setDrawingsLimit(limit) {
+        this.#drawingsLimit = limit;
+    }
+
     // Public getters
 
     /**
