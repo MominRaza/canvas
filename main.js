@@ -251,9 +251,10 @@ export class DrawCanvasShapes {
         lineWidth = 2,
         drawingsLimit,
     }) {
-        if (!(canvas instanceof HTMLCanvasElement)) throw new Error('Invalid canvas element provided');
+        if (!(canvas instanceof HTMLCanvasElement)) {
+            throw new Error('Invalid canvas element provided');
+        }
 
-        // @ts-ignore
         this.#canvas = canvas;
         this.#canvas.width = canvasSize.width;
         this.#canvas.height = canvasSize.height;
@@ -274,7 +275,9 @@ export class DrawCanvasShapes {
         this.#drawingsLimit = drawingsLimit;
 
         const context = this.#canvas.getContext('2d');
-        if (!context) throw new Error('Canvas 2D context is not supported');
+        if (!context) {
+            throw new Error('Canvas 2D context is not supported');
+        }
         this.#ctx = context;
 
         this.#init();
@@ -301,7 +304,13 @@ export class DrawCanvasShapes {
             line: new Line(this.#ctx, this.#clickThreshold),
         };
         this.#freehand = new Freehand(this.#ctx);
-        this.#crossIcon = new CrossIcon(this.#ctx, this.#crossIconSize, this.#crossIconColor, this.#crossIconBackgroundColor, this.#showCrossIcon);
+        this.#crossIcon = new CrossIcon(
+            this.#ctx,
+            this.#crossIconSize,
+            this.#crossIconColor,
+            this.#crossIconBackgroundColor,
+            this.#showCrossIcon
+        );
     }
 
     /**
@@ -320,8 +329,10 @@ export class DrawCanvasShapes {
      * Handles the click event on the canvas.
      * @param {MouseEvent} event - The mouse event.
      */
-    #canvasClick = (event) => {
-        if (this.#drawingMode !== 'draw') return;
+    #canvasClick = event => {
+        if (this.#drawingMode !== 'draw') {
+            return;
+        }
         if (this.#freehandInProgress === undefined) {
             this.#freehandInProgress = false;
             return;
@@ -340,25 +351,35 @@ export class DrawCanvasShapes {
             return;
         }
 
-        if (this.#drawingHandlers?.[this.#drawingType]?.click(this.#points, this.#drawings, x, y, this.#drawingColor, this.#drawingType, this.#lineWidth)) {
+        if (
+            this.#drawingHandlers?.[this.#drawingType]?.click(
+                this.#points,
+                this.#drawings,
+                x,
+                y,
+                this.#drawingColor,
+                this.#drawingType,
+                this.#lineWidth
+            )
+        ) {
             this.#dispatchChangeEvent();
         }
 
         this.#redraw();
-    }
+    };
 
     /**
      * Handles the mouse enter event on the canvas.
      */
     #canvasMouseEnter = () => {
         this.#canvas.style.cursor = this.#drawingMode === 'draw' ? 'crosshair' : 'default';
-    }
+    };
 
     /**
      * Handles the mouse down event on the canvas.
      * @param {MouseEvent} event - The mouse event.
      */
-    #canvasMouseDown = (event) => {
+    #canvasMouseDown = event => {
         if (this.#drawingMode === 'draw' && this.#drawingType === 'freehand') {
             if (this.#drawingsLimit !== undefined && this.#drawings.length >= this.#drawingsLimit) {
                 return;
@@ -368,7 +389,9 @@ export class DrawCanvasShapes {
             return;
         }
 
-        if (this.#drawings.length === 0) return;
+        if (this.#drawings.length === 0) {
+            return;
+        }
 
         const { x, y } = this.#getMousePosition(event);
 
@@ -392,19 +415,23 @@ export class DrawCanvasShapes {
                 }
             }
         }
-    }
+    };
 
     /**
      * Handles the mouse move event on the canvas.
      * @param {MouseEvent} event - The mouse event.
      */
-    #canvasMouseMove = (event) => {
+    #canvasMouseMove = event => {
         const { x, y } = this.#getMousePosition(event);
 
-        if (this.#drawingMode === 'draw') this.#drawModeMouseMove(x, y);
-        else if (this.#drawingMode === 'move') this.#moveModeMouseMove(x, y);
-        else if (this.#drawingMode === 'resize') this.#resizeModeMouseMove(x, y);
-    }
+        if (this.#drawingMode === 'draw') {
+            this.#drawModeMouseMove(x, y);
+        } else if (this.#drawingMode === 'move') {
+            this.#moveModeMouseMove(x, y);
+        } else if (this.#drawingMode === 'resize') {
+            this.#resizeModeMouseMove(x, y);
+        }
+    };
 
     /**
      * Handles the mouse move event when in draw mode.
@@ -424,7 +451,13 @@ export class DrawCanvasShapes {
             return;
         }
 
-        this.#drawingHandlers?.[this.#drawingType]?.drawPreview(this.#points, x, y, this.#drawingColor, this.#lineWidth);
+        this.#drawingHandlers?.[this.#drawingType]?.drawPreview(
+            this.#points,
+            x,
+            y,
+            this.#drawingColor,
+            this.#lineWidth
+        );
     }
 
     /**
@@ -434,13 +467,15 @@ export class DrawCanvasShapes {
      */
     #moveModeMouseMove(x, y) {
         if (this.#movingDrawingIndex === undefined || this.#movingStartPoint === undefined) {
-            this.#canvas.style.cursor = this.#drawings.some((drawing) => this.#isPointInside(drawing, { x, y })) ? 'grab' : 'default';
+            this.#canvas.style.cursor = this.#drawings.some(drawing => this.#isPointInside(drawing, { x, y }))
+                ? 'grab'
+                : 'default';
         } else {
             const drawing = this.#drawings[this.#movingDrawingIndex];
             const dx = x - this.#movingStartPoint.x;
             const dy = y - this.#movingStartPoint.y;
 
-            drawing.points.forEach((point) => {
+            drawing.points.forEach(point => {
                 point.x += dx;
                 point.y += dy;
             });
@@ -456,8 +491,14 @@ export class DrawCanvasShapes {
      * @param {number} y - The y-coordinate of the mouse.
      */
     #resizeModeMouseMove(x, y) {
-        if (this.#movingDrawingIndex === undefined || this.#resizingPointIndex === undefined || this.#movingStartPoint === undefined) {
-            this.#canvas.style.cursor = this.#drawings.some((drawing) => this.#isPointOnPoint(drawing, { x, y }) !== -1) ? 'move' : 'default';
+        if (
+            this.#movingDrawingIndex === undefined ||
+            this.#resizingPointIndex === undefined ||
+            this.#movingStartPoint === undefined
+        ) {
+            this.#canvas.style.cursor = this.#drawings.some(drawing => this.#isPointOnPoint(drawing, { x, y }) !== -1)
+                ? 'move'
+                : 'default';
         } else {
             const drawing = this.#drawings[this.#movingDrawingIndex];
             const dx = x - this.#movingStartPoint.x;
@@ -471,7 +512,6 @@ export class DrawCanvasShapes {
                 } else {
                     end.x += dx;
                     start.y += dy;
-
                 }
             } else if (drawing.type === 'circle') {
                 const center = drawing.points[0];
@@ -512,13 +552,13 @@ export class DrawCanvasShapes {
         }
 
         this.#redraw();
-    }
+    };
 
     /**
      * Dispatches a custom event when the drawings change.
      */
     #dispatchChangeEvent() {
-        const drawingEvent = new CustomEvent('drawingsChange', { detail: { drawings: this.#drawings } })
+        const drawingEvent = new CustomEvent('drawingsChange', { detail: { drawings: this.#drawings } });
         this.#canvas.dispatchEvent(drawingEvent);
     }
 
@@ -563,8 +603,12 @@ export class DrawCanvasShapes {
      * @throws {Error} - If the grid size is less than or equal to 0.
      */
     #drawGrid() {
-        if (!this.#showGrid) return;
-        if (this.#gridSize <= 0) throw new Error('Grid size must be greater than 0');
+        if (!this.#showGrid) {
+            return;
+        }
+        if (this.#gridSize <= 0) {
+            throw new Error('Grid size must be greater than 0');
+        }
 
         this.#ctx.beginPath();
         for (let x = 0; x <= this.#canvas.width; x += this.#gridSize) {
@@ -597,8 +641,8 @@ export class DrawCanvasShapes {
             }
             if (this.#drawingType === 'freehand') {
                 this.#ctx.lineWidth = this.#lineWidth;
-                this.#ctx.lineCap = "round";
-                this.#ctx.lineJoin = "round";
+                this.#ctx.lineCap = 'round';
+                this.#ctx.lineJoin = 'round';
             } else {
                 this.#ctx.lineWidth = 2;
             }
@@ -612,15 +656,21 @@ export class DrawCanvasShapes {
      * Draws all the shapes on the canvas.
      */
     #drawShapes() {
-        this.#drawings.forEach((drawing) => {
+        this.#drawings.forEach(drawing => {
             if (this.#resizeOnCanvasSizeChange) {
                 const widthRatio = this.#canvas.width / drawing.canvasSize.width;
                 const heightRatio = this.#canvas.height / drawing.canvasSize.height;
 
-                if (!Number.isNaN(widthRatio) && !Number.isNaN(heightRatio) && heightRatio !== 0 && widthRatio !== 0 && (widthRatio !== 1 || heightRatio !== 1)) {
+                if (
+                    !Number.isNaN(widthRatio) &&
+                    !Number.isNaN(heightRatio) &&
+                    heightRatio !== 0 &&
+                    widthRatio !== 0 &&
+                    (widthRatio !== 1 || heightRatio !== 1)
+                ) {
                     drawing.points = drawing.points.map(point => ({
                         x: point.x * widthRatio,
-                        y: point.y * heightRatio
+                        y: point.y * heightRatio,
                     }));
 
                     drawing.canvasSize = { width: this.#canvas.width, height: this.#canvas.height };
@@ -632,9 +682,14 @@ export class DrawCanvasShapes {
                 }
             }
 
-            if (drawing.type === 'freehand') this.#freehand?.draw(drawing);
-            else this.#drawingHandlers?.[drawing.type]?.draw(drawing);
-            if (this.#drawingMode === 'draw') this.#crossIcon?.draw(drawing);
+            if (drawing.type === 'freehand') {
+                this.#freehand?.draw(drawing);
+            } else {
+                this.#drawingHandlers?.[drawing.type]?.draw(drawing);
+            }
+            if (this.#drawingMode === 'draw') {
+                this.#crossIcon?.draw(drawing);
+            }
         });
     }
 
@@ -708,8 +763,9 @@ export class DrawCanvasShapes {
      */
     setShowCrossIcon(showCrossIcon) {
         this.#showCrossIcon = showCrossIcon;
-        if (this.#crossIcon)
+        if (this.#crossIcon) {
             this.#crossIcon.showCrossIcon = showCrossIcon;
+        }
         this.#redraw();
     }
 
