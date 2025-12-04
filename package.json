@@ -20,5 +20,8 @@
   "bugs": {
     "url": "https://github.com/MominRaza/canvas/issues"
   },
-  "homepage": "https://github.com/MominRaza/canvas#readme"
+  "homepage": "https://github.com/MominRaza/canvas#readme",
+  "devDependencies": {
+    "oxfmt": "^0.16.0"
+  }
 }
