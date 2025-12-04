@@ -5,6 +5,7 @@ import Rectangle from './shapes/rectangle.js';
 import Circle from './shapes/circle.js';
 import Triangle from './shapes/triangle.js';
 import Line from './shapes/line.js';
+import Direction from './shapes/direction.js';
 import CrossIcon from './shapes/cross-icon.js';
 import Freehand from './shapes/freehand.js';
 
@@ -22,7 +23,7 @@ import Freehand from './shapes/freehand.js';
  * @property {string} color - The color of the drawing.
  * @property {DrawingType} type - The type of the drawing.
  * @property {number} [radius] - The radius of the drawing (only for circle).
- * @property {number} [lineWidth] - The line width of the drawing (only for line and freehand).
+ * @property {number} [lineWidth] - The line width of the drawing (only for line, direction, and freehand).
  * @property {CanvasSize} canvasSize - The size of the canvas when the drawing was created.
  * @property {boolean} [fullView] - Wether the drawing is in full view or not.
  */
@@ -36,12 +37,13 @@ import Freehand from './shapes/freehand.js';
 
 /**
  * The type of drawing.
- * @typedef {'polygon'|'rectangle'|'circle'|'triangle'|'line'|'freehand'} DrawingType
+ * @typedef {'polygon'|'rectangle'|'circle'|'triangle'|'line'|'direction'|'freehand'} DrawingType
  * @property {'polygon'} polygon - Type for drawing polygons.
  * @property {'rectangle'} rectangle - Type for drawing rectangles.
  * @property {'circle'} circle - Type for drawing circles.
  * @property {'triangle'} triangle - Type for drawing triangles.
  * @property {'line'} line - Type for drawing lines.
+ * @property {'direction'} direction - Type for drawing directional arrows.
  * @property {'freehand'} freehand - Type for drawing freehand shapes.
  */
 
@@ -73,7 +75,7 @@ import Freehand from './shapes/freehand.js';
  * @property {number} [clickThreshold] - The threshold for detecting final click in polygons.
  * @property {number} [maxPoints] - The maximum number of points allowed in a polygon.
  * @property {boolean} [resizeOnCanvasSizeChange] - Wether to resize the drawings when the canvas size changes.
- * @property {number} [lineWidth] - The line width of the drawing (only for line and freehand).
+ * @property {number} [lineWidth] - The line width of the drawing (only for line, direction, and freehand).
  * @property {number} [drawingsLimit] - The limit of drawings that can be drawn on the canvas.
  */
 
@@ -200,7 +202,7 @@ export class DrawCanvasShapes {
 
     /**
      * Drawing handlers for all different types of drawings except freehand.
-     * @type {Object<string, Polygon|Rectangle|Circle|Triangle|Line> | undefined}
+     * @type {Object<string, Polygon|Rectangle|Circle|Triangle|Line|Direction> | undefined}
      */
     #drawingHandlers;
 
@@ -311,6 +313,7 @@ export class DrawCanvasShapes {
             circle: new Circle(this.#ctx, this.#clickThreshold),
             triangle: new Triangle(this.#ctx, this.#clickThreshold),
             line: new Line(this.#ctx, this.#clickThreshold),
+            direction: new Direction(this.#ctx, this.#clickThreshold),
         };
         this.#freehand = new Freehand(this.#ctx);
         this.#crossIcon = new CrossIcon(
@@ -624,7 +627,7 @@ export class DrawCanvasShapes {
      * @returns {number} - The index of the point the mouse point is on if any, otherwise -1.
      */
     #isPointOnPoint(drawing, { x, y }) {
-        if (['triangle', 'line'].includes(drawing.type)) {
+        if (['triangle', 'line', 'direction'].includes(drawing.type)) {
             return this.#drawingHandlers?.['polygon']?.isPointOnPoint(drawing, { x, y }) ?? -1;
         }
         return this.#drawingHandlers?.[drawing.type]?.isPointOnPoint(drawing, { x, y }) ?? -1;
@@ -815,7 +818,7 @@ export class DrawCanvasShapes {
     }
 
     /**
-     * Sets the width of the lines in the drawing (only for line and freehand).
+     * Sets the width of the lines in the drawing (only for line, direction, and freehand).
      * @param {number} lineWidth - The new width of the lines.
      */
     setLineWidth(lineWidth) {

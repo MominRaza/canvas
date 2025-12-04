@@ -4,7 +4,7 @@ A simple and efficient library for drawing various shapes on an HTML5 canvas. Ea
 
 ## Features
 
-- Draw basic shapes (circles, rectangles, lines, triangles, polygons)
+- Draw basic shapes (circles, rectangles, lines, triangles, polygons, directions)
 - Customize shapes with colors, borders, and styles
 - Clear and update the canvas with ease
 - Lightweight and easy to integrate
@@ -87,7 +87,7 @@ new DrawCanvasShapes(options);
   - __gridSize__: `number` (optional) - The size of the grid cells.
   - __showGrid__: `boolean` (optional) - Whether to show the grid or not.
   - __drawings__: `Array<Drawing>` (optional) - The initial drawings to display on the canvas.
-  - __drawingType__: `DrawingType` (optional) - The type of drawing to create (`polygon`, `rectangle`, `circle`, `triangle`, `line`).
+  - __drawingType__: `DrawingType` (optional) - The type of drawing to create (`polygon`, `rectangle`, `circle`, `triangle`, `line`, `direction`).
   - __drawingColor__: `string` (optional) - The color of the drawing.
   - __drawingMode__: `DrawingMode` (optional) - The mode of drawing (`draw`, `move`, `resize`).
   - __crossIconSize__: `number` (optional) - The size of the cross icon.
@@ -116,7 +116,7 @@ type Drawing = {
 };
 ```
 
-- __type__: `DrawingType` - The type of drawing (`polygon`, `rectangle`, `circle`, `triangle`, `line`).
+- __type__: `DrawingType` - The type of drawing (`polygon`, `rectangle`, `circle`, `triangle`, `line`, `direction`).
 - __color__: `string` - The color of the drawing.
 - __points__: `Array<Point>` - The points of the drawing.
   - __x__: `number` - The x-coordinate of the point.
