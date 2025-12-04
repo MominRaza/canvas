@@ -354,7 +354,12 @@ export class DrawCanvasShapes {
             return this.#redraw();
         }
 
-        if (this.#drawingsLimit !== undefined && this.#drawings.length >= this.#drawingsLimit) {
+        const sameColorDrawingsCount = this.#drawings.filter(d => d.color === this.#drawingColor).length;
+        if (
+            this.#drawingsLimit !== undefined &&
+            this.#drawings.length >= this.#drawingsLimit &&
+            sameColorDrawingsCount >= 1
+        ) {
             const limitEvent = new CustomEvent('drawingLimitReached', { detail: { limit: this.#drawingsLimit } });
             this.#canvas.dispatchEvent(limitEvent);
             return;
