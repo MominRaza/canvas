@@ -2,11 +2,12 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Canvas</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
     <script src="main.js" type="module" defer></script>
+    <meta name="color-scheme" content="light dark" />
 </head>
 
 <body>
@@ -23,7 +24,7 @@
         <option value="polygon" selected>Polygon</option>
         <option value="freehand">Freehand</option>
     </select>
-    <input type="range" id="lineWidth" min="2" max="50">
+    <input type="range" id="lineWidth" min="2" max="50" />
     <select id="colorPicker">
         <option value="#ff000090">Red</option>
         <option value="#ffa50090">Orange</option>
@@ -41,9 +42,10 @@
         <option value="30">30x30</option>
         <option value="40">40x40</option>
     </select>
-    <input type="checkbox" id="showGrid" checked>Grid</input>
-    <br>
-    <input type="number" id="height" value="600"> x <input type="number" id="width" value="1000">
+    <input type="checkbox" id="showGrid" checked /> <label for="showGrid">Grid</label>
+    <br />
+    <input type="number" id="height" value="600" /> x
+    <input type="number" id="width" value="1000" />
     <button id="clearButton">Clear</button>
     <button id="cancelButton">Cancel</button>
     <button id="saveButton">Save</button>
