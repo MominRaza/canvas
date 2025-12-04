@@ -14,7 +14,7 @@ export default class Rectangle {
      * @param {import("../main").Drawing} drawing
      */
     draw({ points, color }) {
-        if (points.length < 2) {
+        if (points.length < 4) {
             return;
         }
 
@@ -41,8 +41,8 @@ export default class Rectangle {
         if (points.length === 2) {
             const [p1, p3] = points;
             // Create the other two points of the rectangle
-            const p2 = { x: p3.x, y: p1.y };
-            const p4 = { x: p1.x, y: p3.y };
+            const p2 = { x: p1.x, y: p3.y };
+            const p4 = { x: p3.x, y: p1.y };
 
             const allPoints = [p1, p2, p3, p4];
             const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
