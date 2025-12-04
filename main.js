@@ -489,10 +489,34 @@ export class DrawCanvasShapes {
             const dx = x - this.#movingStartPoint.x;
             const dy = y - this.#movingStartPoint.y;
 
+            /**
+             *  @type {Array<Point>}
+             **/
+            const updatedPoints = [];
+
+            let movingOutOfBounds = false;
+
             drawing.points.forEach(point => {
-                point.x += dx;
-                point.y += dy;
+                const updatedPoint = { ...point };
+                if (
+                    point.x + dx > this.#canvas.width ||
+                    point.x + dx < 0 ||
+                    point.y + dy > this.#canvas.height ||
+                    point.y + dy < 0
+                ) {
+                    movingOutOfBounds = true;
+                    return;
+                } else {
+                    updatedPoint.x += dx;
+                    updatedPoint.y += dy;
+                }
+
+                updatedPoints.push(updatedPoint);
             });
+
+            if (!movingOutOfBounds) {
+                drawing.points = updatedPoints;
+            }
 
             this.#movingStartPoint = { x, y };
             this.#redraw();
