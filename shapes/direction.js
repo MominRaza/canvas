@@ -10,26 +10,33 @@ export default class Direction {
         this.clickThreshold = clickThreshold;
     }
 
+    static ARROW_LENGTH = 200;
+
     /**
      * @param {import("../main").Drawing} drawing
      * @throws {Error}
      */
-    draw({ points: [start, end], color, lineWidth }) {
-        if (!lineWidth) {
-            throw new Error('lineWidth is required for Direction drawings');
+    draw({ points: [start], color, angle }) {
+        if (angle === undefined) {
+            throw new Error('angle is required for Direction drawings');
         }
+
+        const end = {
+            x: start.x + Direction.ARROW_LENGTH * Math.cos(angle),
+            y: start.y + Direction.ARROW_LENGTH * Math.sin(angle),
+        };
 
         // Draw the main line
         this.ctx.beginPath();
         this.ctx.moveTo(start.x, start.y);
         this.ctx.lineTo(end.x, end.y);
-        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineWidth = 2;
         this.ctx.strokeStyle = color;
         this.ctx.lineCap = 'round';
         this.ctx.stroke();
 
         // Draw the arrowhead
-        this.#drawArrowhead(start, end, color, lineWidth);
+        this.#drawArrowhead(start, end, color);
     }
 
     /**
@@ -37,11 +44,10 @@ export default class Direction {
      * @param {import("../main").Point} start - Starting point of the line
      * @param {import("../main").Point} end - Ending point of the line
      * @param {string} color - Color of the arrow
-     * @param {number} lineWidth - Width of the line
      */
-    #drawArrowhead(start, end, color, lineWidth) {
+    #drawArrowhead(start, end, color) {
         const angle = Math.atan2(end.y - start.y, end.x - start.x);
-        const arrowLength = Math.max(10, lineWidth * 3);
+        const arrowLength = 12;
         const arrowAngle = Math.PI / 6; // 30 degrees
 
         // Calculate arrowhead points
@@ -61,7 +67,7 @@ export default class Direction {
         this.ctx.lineTo(arrowPoint1.x, arrowPoint1.y);
         this.ctx.moveTo(end.x, end.y);
         this.ctx.lineTo(arrowPoint2.x, arrowPoint2.y);
-        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineWidth = 2;
         this.ctx.strokeStyle = color;
         this.ctx.lineCap = 'round';
         this.ctx.stroke();
@@ -74,18 +80,28 @@ export default class Direction {
      * @param {number} y
      * @param {string} color
      * @param {import("../main").DrawingType} drawingType
-     * @param {number} lineWidth
      * @returns {boolean}
      */
-    click(points, drawings, x, y, color, drawingType, lineWidth) {
-        points.push({ x, y });
-        if (points.length === 2) {
+    click(points, drawings, x, y, color, drawingType) {
+        if (points.length === 0) {
+            // First click: store the starting point
+            points.push({ x, y });
+            return false;
+        } else {
+            // Second click: calculate angle and store the drawing
+            const start = points[0];
+            const angle = Math.atan2(y - start.y, x - start.x);
             const canvasSize = { width: this.ctx.canvas.width, height: this.ctx.canvas.height };
-            drawings.push({ points: [...points], color, type: drawingType, canvasSize, lineWidth });
+            drawings.push({
+                points: [start],
+                color,
+                type: drawingType,
+                canvasSize,
+                angle,
+            });
             points.length = 0;
             return true;
         }
-        return false;
     }
 
     /**
@@ -93,20 +109,26 @@ export default class Direction {
      * @param {number} x
      * @param {number} y
      * @param {string} color
-     * @param {number} lineWidth
      */
-    drawPreview([start], x, y, color, lineWidth) {
+    drawPreview([start], x, y, color) {
+        // Calculate angle and end point for preview
+        const angle = Math.atan2(y - start.y, x - start.x);
+        const end = {
+            x: start.x + Direction.ARROW_LENGTH * Math.cos(angle),
+            y: start.y + Direction.ARROW_LENGTH * Math.sin(angle),
+        };
+
         // Draw the preview line
         this.ctx.beginPath();
         this.ctx.moveTo(start.x, start.y);
-        this.ctx.lineTo(x, y);
-        this.ctx.lineWidth = lineWidth;
+        this.ctx.lineTo(end.x, end.y);
+        this.ctx.lineWidth = 2;
         this.ctx.strokeStyle = color;
         this.ctx.lineCap = 'round';
         this.ctx.stroke();
 
         // Draw the preview arrowhead
-        this.#drawArrowhead(start, { x, y }, color, lineWidth);
+        this.#drawArrowhead(start, end, color);
     }
 
     /**
@@ -114,7 +136,14 @@ export default class Direction {
      * @param {import("../main").Point} point
      * @returns {boolean}
      */
-    isPointInside({ points: [start, end] }, { x, y }) {
+    isPointInside({ points: [start], angle }, { x, y }) {
+        if (angle === undefined) return false;
+
+        const end = {
+            x: start.x + Direction.ARROW_LENGTH * Math.cos(angle),
+            y: start.y + Direction.ARROW_LENGTH * Math.sin(angle),
+        };
+
         const { x: x1, y: y1 } = start;
         const { x: x2, y: y2 } = end;
 

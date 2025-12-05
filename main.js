@@ -23,7 +23,8 @@ import Freehand from './shapes/freehand.js';
  * @property {string} color - The color of the drawing.
  * @property {DrawingType} type - The type of the drawing.
  * @property {number} [radius] - The radius of the drawing (only for circle).
- * @property {number} [lineWidth] - The line width of the drawing (only for line, direction, and freehand).
+ * @property {number} [lineWidth] - The line width of the drawing (only for line and freehand).
+ * @property {number} [angle] - The angle of the drawing (only for direction).
  * @property {CanvasSize} canvasSize - The size of the canvas when the drawing was created.
  * @property {boolean} [fullView] - Wether the drawing is in full view or not.
  */
@@ -75,7 +76,7 @@ import Freehand from './shapes/freehand.js';
  * @property {number} [clickThreshold] - The threshold for detecting final click in polygons.
  * @property {number} [maxPoints] - The maximum number of points allowed in a polygon.
  * @property {boolean} [resizeOnCanvasSizeChange] - Wether to resize the drawings when the canvas size changes.
- * @property {number} [lineWidth] - The line width of the drawing (only for line, direction, and freehand).
+ * @property {number} [lineWidth] - The line width of the drawing (only for line and freehand).
  * @property {number} [drawingsLimit] - The limit of drawings that can be drawn on the canvas.
  */
 
@@ -818,7 +819,7 @@ export class DrawCanvasShapes {
     }
 
     /**
-     * Sets the width of the lines in the drawing (only for line, direction, and freehand).
+     * Sets the width of the lines in the drawing (only for line and freehand).
      * @param {number} lineWidth - The new width of the lines.
      */
     setLineWidth(lineWidth) {
