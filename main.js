@@ -80,6 +80,12 @@ import Freehand from './shapes/freehand.js';
  * @property {number} [drawingsLimit] - The limit of drawings that can be drawn on the canvas.
  */
 
+const SHAPE_DELEGATE_TYPES = ['triangle', 'line', 'direction'];
+const RESIZE_HANDLE_BORDER_SIZE = 3;
+const RESIZE_HANDLE_INNER_SIZE = 6;
+const RESIZE_HANDLE_SIZE = RESIZE_HANDLE_INNER_SIZE + RESIZE_HANDLE_BORDER_SIZE * 2;
+const RESIZE_HANDLE_INNER_COLOR = '#ffffff';
+
 export class DrawCanvasShapes {
     /**
      * The canvas element to draw shapes on.
@@ -628,7 +634,7 @@ export class DrawCanvasShapes {
      * @returns {number} - The index of the point the mouse point is on if any, otherwise -1.
      */
     #isPointOnPoint(drawing, { x, y }) {
-        if (['triangle', 'line', 'direction'].includes(drawing.type)) {
+        if (SHAPE_DELEGATE_TYPES.includes(drawing.type)) {
             return this.#drawingHandlers?.['polygon']?.isPointOnPoint(drawing, { x, y }) ?? -1;
         }
         return this.#drawingHandlers?.[drawing.type]?.isPointOnPoint(drawing, { x, y }) ?? -1;
@@ -740,6 +746,65 @@ export class DrawCanvasShapes {
                 this.#crossIcon?.draw(drawing);
             }
         });
+
+        if (this.#drawingMode === 'resize') {
+            this.#drawResizeHandles();
+        }
+    }
+
+    /**
+     * Draws static resize handles for the current drawings.
+     */
+    #drawResizeHandles() {
+        this.#drawings.forEach(drawing => {
+            this.#getResizeHandlePoints(drawing).forEach(point => {
+                const outerOffset = RESIZE_HANDLE_SIZE / 2;
+                const innerOffset = RESIZE_HANDLE_INNER_SIZE / 2;
+
+                this.#ctx.fillStyle = drawing.color;
+                this.#ctx.fillRect(
+                    point.x - outerOffset,
+                    point.y - outerOffset,
+                    RESIZE_HANDLE_SIZE,
+                    RESIZE_HANDLE_SIZE
+                );
+
+                this.#ctx.fillStyle = RESIZE_HANDLE_INNER_COLOR;
+                this.#ctx.fillRect(
+                    point.x - innerOffset,
+                    point.y - innerOffset,
+                    RESIZE_HANDLE_INNER_SIZE,
+                    RESIZE_HANDLE_INNER_SIZE
+                );
+            });
+        });
+    }
+
+    /**
+     * Gets the points where resize handles should be drawn.
+     * @param {Drawing} drawing - The drawing to inspect.
+     * @returns {Array<Point>} The handle points.
+     */
+    #getResizeHandlePoints(drawing) {
+        if (drawing.type === 'freehand') {
+            return [];
+        }
+
+        if (drawing.type === 'circle') {
+            const [center, radiusPoint] = drawing.points;
+
+            if (radiusPoint) {
+                return [radiusPoint];
+            }
+
+            if (center && drawing.radius) {
+                return [{ x: center.x + drawing.radius, y: center.y }];
+            }
+
+            return [];
+        }
+
+        return drawing.points;
     }
 
     // Public setters
