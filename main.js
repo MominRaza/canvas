@@ -320,7 +320,7 @@ export class DrawCanvasShapes {
             circle: new Circle(this.#ctx, this.#clickThreshold),
             triangle: new Triangle(this.#ctx, this.#clickThreshold),
             line: new Line(this.#ctx, this.#clickThreshold),
-            direction: new Direction(this.#ctx, this.#clickThreshold),
+            direction: new Direction(this.#ctx, this.#clickThreshold, this.#maxPoints),
         };
         this.#freehand = new Freehand(this.#ctx);
         this.#crossIcon = new CrossIcon(
