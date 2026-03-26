@@ -26,6 +26,43 @@ export default class Direction {
             y: start.y + Direction.ARROW_LENGTH * Math.sin(angle),
         };
 
+        // Draw decorative background (35% opacity) extending in arrow direction
+        const maxDistance = Math.hypot(this.ctx.canvas.width, this.ctx.canvas.height);
+        const perpAngle = angle + Math.PI / 2;
+
+        const perpX = maxDistance * Math.cos(perpAngle);
+        const perpY = maxDistance * Math.sin(perpAngle);
+        const dirX = maxDistance * Math.cos(angle);
+        const dirY = maxDistance * Math.sin(angle);
+
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.35;
+        this.ctx.fillStyle = color;
+        this.ctx.beginPath();
+        this.ctx.moveTo(start.x + perpX, start.y + perpY);
+        this.ctx.lineTo(start.x + perpX + dirX, start.y + perpY + dirY);
+        this.ctx.lineTo(start.x - perpX + dirX, start.y - perpY + dirY);
+        this.ctx.lineTo(start.x - perpX, start.y - perpY);
+        this.ctx.fill();
+        this.ctx.restore();
+
+        // Draw decorative circle at starting point (20% opacity)
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.2;
+        this.ctx.fillStyle = color;
+        this.ctx.beginPath();
+        this.ctx.arc(start.x, start.y, 40, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.restore();
+
+        // Draw perpendicular line at the start
+        this.ctx.beginPath();
+        this.ctx.moveTo(start.x + perpX, start.y + perpY);
+        this.ctx.lineTo(start.x - perpX, start.y - perpY);
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeStyle = color;
+        this.ctx.stroke();
+
         // Draw the main line
         this.ctx.beginPath();
         this.ctx.moveTo(start.x, start.y);
