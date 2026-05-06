@@ -68,3 +68,12 @@ document.getElementById('saveButton').addEventListener('click', () => {
 lineWidth.addEventListener('change', event => {
     drawer.setLineWidth(parseInt(event.target.value));
 });
+
+canvas.addEventListener('selectionChange', event => {
+    const { index, drawing } = event.detail;
+    if (drawing) {
+        console.log(`Selected drawing ${index}:`, drawing.type, drawing.color);
+    } else {
+        console.log('Selection cleared');
+    }
+});

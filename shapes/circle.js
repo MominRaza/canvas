@@ -83,11 +83,13 @@ export default class Circle {
      * @returns {number}
      * @throws {Error}
      */
-    isPointOnPoint({ points: [center], radius }, { x, y }) {
-        const distance = Math.sqrt((center.x - x) ** 2 + (center.y - y) ** 2);
+    isPointOnPoint({ points, radius }, { x, y }) {
         if (!radius) {
             throw new Error('Circle radius is required');
         }
-        return distance >= radius - this.clickThreshold / 8 && distance <= radius + this.clickThreshold / 8 ? 0 : -1;
+        const center = points[0];
+        const radiusPoint = points[1] ?? { x: center.x + radius, y: center.y };
+        const distance = Math.sqrt((radiusPoint.x - x) ** 2 + (radiusPoint.y - y) ** 2);
+        return distance <= this.clickThreshold ? 0 : -1;
     }
 }

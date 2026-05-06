@@ -50,10 +50,9 @@ import Freehand from './shapes/freehand.js';
 
 /**
  * The mode of drawing.
- * @typedef {'draw'|'move'|'resize'|'view'} DrawingMode
+ * @typedef {'draw'|'edit'|'view'} DrawingMode
  * @property {'draw'} draw - Mode for drawing shapes.
- * @property {'move'} move - Mode for moving shapes.
- * @property {'resize'} resize - Mode for resizing shapes.
+ * @property {'edit'} edit - Mode for selecting, moving, and resizing shapes.
  * @property {'view'} view - Mode for viewing shapes without editing.
  */
 
@@ -188,6 +187,12 @@ export class DrawCanvasShapes {
      * @type {CrossIcon | undefined}
      */
     #crossIcon;
+
+    /**
+     * The index of the currently selected drawing.
+     * @type {number | undefined}
+     */
+    #selectedDrawingIndex;
 
     /**
      * The index of the drawing being moved or resized.
@@ -413,31 +418,47 @@ export class DrawCanvasShapes {
             return;
         }
 
-        if (this.#drawings.length === 0) {
+        if (this.#drawingMode !== 'edit') {
             return;
         }
 
         const { x, y } = this.#getMousePosition(event);
 
-        for (let i = this.#drawings.length - 1; i >= 0; i--) {
-            const drawing = this.#drawings[i];
-
-            if (this.#drawingMode === 'move') {
-                if (this.#isPointInside(drawing, { x, y })) {
-                    this.#movingDrawingIndex = i;
-                    this.#movingStartPoint = { x, y };
-                    this.#canvas.style.cursor = 'grabbing';
-                    break;
-                }
-            } else if (this.#drawingMode === 'resize') {
-                const pointIndex = this.#isPointOnPoint(drawing, { x, y });
+        // If a shape is already selected, check resize handles first
+        if (this.#selectedDrawingIndex !== undefined) {
+            const selectedDrawing = this.#drawings[this.#selectedDrawingIndex];
+            if (selectedDrawing) {
+                const pointIndex = this.#isPointOnPoint(selectedDrawing, { x, y });
                 if (pointIndex !== -1) {
-                    this.#movingDrawingIndex = i;
+                    this.#movingDrawingIndex = this.#selectedDrawingIndex;
                     this.#resizingPointIndex = pointIndex;
                     this.#movingStartPoint = { x, y };
-                    break;
+                    return;
                 }
             }
+        }
+
+        // Check if click is inside any shape (reverse order, newest first)
+        for (let i = this.#drawings.length - 1; i >= 0; i--) {
+            const drawing = this.#drawings[i];
+            if (this.#isPointInside(drawing, { x, y })) {
+                if (this.#selectedDrawingIndex !== i) {
+                    this.#selectedDrawingIndex = i;
+                    this.#dispatchSelectionChangeEvent();
+                }
+                this.#movingDrawingIndex = i;
+                this.#movingStartPoint = { x, y };
+                this.#canvas.style.cursor = 'grabbing';
+                this.#redraw();
+                return;
+            }
+        }
+
+        // Click on empty space — deselect
+        if (this.#selectedDrawingIndex !== undefined) {
+            this.#selectedDrawingIndex = undefined;
+            this.#dispatchSelectionChangeEvent();
+            this.#redraw();
         }
     };
 
@@ -450,10 +471,8 @@ export class DrawCanvasShapes {
 
         if (this.#drawingMode === 'draw') {
             this.#drawModeMouseMove(x, y);
-        } else if (this.#drawingMode === 'move') {
-            this.#moveModeMouseMove(x, y);
-        } else if (this.#drawingMode === 'resize') {
-            this.#resizeModeMouseMove(x, y);
+        } else if (this.#drawingMode === 'edit') {
+            this.#editModeMouseMove(x, y);
         }
     };
 
@@ -485,23 +504,59 @@ export class DrawCanvasShapes {
     }
 
     /**
-     * Handles the mouse move event when in move mode.
+     * Handles the mouse move event when in edit mode.
      * @param {number} x - The x-coordinate of the mouse.
      * @param {number} y - The y-coordinate of the mouse.
      */
-    #moveModeMouseMove(x, y) {
-        if (this.#movingDrawingIndex === undefined || this.#movingStartPoint === undefined) {
-            this.#canvas.style.cursor = this.#drawings.some(drawing => this.#isPointInside(drawing, { x, y }))
-                ? 'grab'
-                : 'default';
-        } else {
+    #editModeMouseMove(x, y) {
+        // Resizing a point
+        if (
+            this.#movingDrawingIndex !== undefined &&
+            this.#resizingPointIndex !== undefined &&
+            this.#movingStartPoint !== undefined
+        ) {
             const drawing = this.#drawings[this.#movingDrawingIndex];
             const dx = x - this.#movingStartPoint.x;
             const dy = y - this.#movingStartPoint.y;
 
-            /**
-             *  @type {Array<Point>}
-             **/
+            if (drawing.type === 'rectangle') {
+                const pts = drawing.points;
+                const i = this.#resizingPointIndex;
+                const next = (i + 1) % 4;
+                const prev = (i + 3) % 4;
+
+                pts[i].x += dx;
+                pts[i].y += dy;
+
+                if (i % 2 === 0) {
+                    pts[next].x = pts[i].x;
+                    pts[prev].y = pts[i].y;
+                } else {
+                    pts[next].y = pts[i].y;
+                    pts[prev].x = pts[i].x;
+                }
+            } else if (drawing.type === 'circle') {
+                const center = drawing.points[0];
+                drawing.radius = Math.sqrt((center.x - x) ** 2 + (center.y - y) ** 2);
+                drawing.points[1] = { x, y };
+            } else {
+                const point = drawing.points[this.#resizingPointIndex];
+                point.x += dx;
+                point.y += dy;
+            }
+
+            this.#movingStartPoint = { x, y };
+            this.#redraw();
+            return;
+        }
+
+        // Moving a shape
+        if (this.#movingDrawingIndex !== undefined && this.#movingStartPoint !== undefined) {
+            const drawing = this.#drawings[this.#movingDrawingIndex];
+            const dx = x - this.#movingStartPoint.x;
+            const dy = y - this.#movingStartPoint.y;
+
+            /** @type {Array<Point>} */
             const updatedPoints = [];
 
             let movingOutOfBounds = false;
@@ -530,55 +585,22 @@ export class DrawCanvasShapes {
 
             this.#movingStartPoint = { x, y };
             this.#redraw();
+            return;
         }
-    }
 
-    /**
-     * Handles the mouse move event when in resize mode.
-     * @param {number} x - The x-coordinate of the mouse.
-     * @param {number} y - The y-coordinate of the mouse.
-     */
-    #resizeModeMouseMove(x, y) {
-        if (
-            this.#movingDrawingIndex === undefined ||
-            this.#resizingPointIndex === undefined ||
-            this.#movingStartPoint === undefined
-        ) {
-            this.#canvas.style.cursor = this.#drawings.some(drawing => this.#isPointOnPoint(drawing, { x, y }) !== -1)
-                ? 'move'
-                : 'default';
-        } else {
-            const drawing = this.#drawings[this.#movingDrawingIndex];
-            const dx = x - this.#movingStartPoint.x;
-            const dy = y - this.#movingStartPoint.y;
-
-            if (drawing.type === 'rectangle') {
-                const pts = drawing.points;
-                const i = this.#resizingPointIndex;
-                const next = (i + 1) % 4;
-                const prev = (i + 3) % 4;
-
-                pts[i].x += dx;
-                pts[i].y += dy;
-
-                if (i % 2 === 0) {
-                    pts[next].x = pts[i].x;
-                    pts[prev].y = pts[i].y;
-                } else {
-                    pts[next].y = pts[i].y;
-                    pts[prev].x = pts[i].x;
-                }
-            } else if (drawing.type === 'circle') {
-                const center = drawing.points[0];
-                drawing.radius = Math.sqrt((center.x - x) ** 2 + (center.y - y) ** 2);
-            } else {
-                const point = drawing.points[this.#resizingPointIndex];
-                point.x += dx;
-                point.y += dy;
+        // Hover cursor updates
+        if (this.#selectedDrawingIndex !== undefined) {
+            const selectedDrawing = this.#drawings[this.#selectedDrawingIndex];
+            if (selectedDrawing && this.#isPointOnPoint(selectedDrawing, { x, y }) !== -1) {
+                this.#canvas.style.cursor = 'move';
+                return;
             }
+        }
 
-            this.#movingStartPoint = { x, y };
-            this.#redraw();
+        if (this.#drawings.some(drawing => this.#isPointInside(drawing, { x, y }))) {
+            this.#canvas.style.cursor = 'grab';
+        } else {
+            this.#canvas.style.cursor = 'default';
         }
     }
 
@@ -615,6 +637,16 @@ export class DrawCanvasShapes {
     #dispatchChangeEvent() {
         const drawingEvent = new CustomEvent('drawingsChange', { detail: { drawings: this.#drawings } });
         this.#canvas.dispatchEvent(drawingEvent);
+    }
+
+    /**
+     * Dispatches a custom event when the selection changes.
+     */
+    #dispatchSelectionChangeEvent() {
+        const index = this.#selectedDrawingIndex;
+        const drawing = index !== undefined ? this.#drawings[index] : undefined;
+        const selectionEvent = new CustomEvent('selectionChange', { detail: { index, drawing } });
+        this.#canvas.dispatchEvent(selectionEvent);
     }
 
     /**
@@ -747,36 +779,82 @@ export class DrawCanvasShapes {
             }
         });
 
-        if (this.#drawingMode === 'resize') {
-            this.#drawResizeHandles();
+        if (this.#drawingMode === 'edit' && this.#selectedDrawingIndex !== undefined) {
+            const selectedDrawing = this.#drawings[this.#selectedDrawingIndex];
+            if (selectedDrawing) {
+                this.#drawSelectionIndicator(selectedDrawing);
+                this.#drawResizeHandlesForDrawing(selectedDrawing);
+            }
         }
     }
 
     /**
-     * Draws static resize handles for the current drawings.
+     * Draws a dashed outline around the selected drawing.
+     * @param {Drawing} drawing - The selected drawing.
      */
-    #drawResizeHandles() {
-        this.#drawings.forEach(drawing => {
-            this.#getResizeHandlePoints(drawing).forEach(point => {
-                const outerOffset = RESIZE_HANDLE_SIZE / 2;
-                const innerOffset = RESIZE_HANDLE_INNER_SIZE / 2;
+    #drawSelectionIndicator(drawing) {
+        this.#ctx.save();
+        this.#ctx.setLineDash([6, 4]);
+        this.#ctx.strokeStyle = drawing.color;
+        this.#ctx.lineWidth = 2;
 
-                this.#ctx.fillStyle = drawing.color;
-                this.#ctx.fillRect(
-                    point.x - outerOffset,
-                    point.y - outerOffset,
-                    RESIZE_HANDLE_SIZE,
-                    RESIZE_HANDLE_SIZE
-                );
+        if (drawing.type === 'circle') {
+            const center = drawing.points[0];
+            const radius = drawing.radius ?? 0;
+            this.#ctx.beginPath();
+            this.#ctx.arc(center.x, center.y, radius, 0, Math.PI * 2);
+            this.#ctx.stroke();
+        } else if (drawing.type === 'freehand') {
+            // Bounding box for freehand
+            const xs = drawing.points.map(p => p.x);
+            const ys = drawing.points.map(p => p.y);
+            const minX = Math.min(...xs);
+            const minY = Math.min(...ys);
+            const maxX = Math.max(...xs);
+            const maxY = Math.max(...ys);
+            const pad = 4;
+            this.#ctx.strokeRect(minX - pad, minY - pad, maxX - minX + pad * 2, maxY - minY + pad * 2);
+        } else {
+            // Polygon path for all other shapes
+            const points = drawing.points;
+            if (points.length > 0) {
+                this.#ctx.beginPath();
+                this.#ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    this.#ctx.lineTo(points[i].x, points[i].y);
+                }
+                this.#ctx.closePath();
+                this.#ctx.stroke();
+            }
+        }
 
-                this.#ctx.fillStyle = RESIZE_HANDLE_INNER_COLOR;
-                this.#ctx.fillRect(
-                    point.x - innerOffset,
-                    point.y - innerOffset,
-                    RESIZE_HANDLE_INNER_SIZE,
-                    RESIZE_HANDLE_INNER_SIZE
-                );
-            });
+        this.#ctx.restore();
+    }
+
+    /**
+     * Draws resize handles for a single drawing.
+     * @param {Drawing} drawing - The drawing to draw handles for.
+     */
+    #drawResizeHandlesForDrawing(drawing) {
+        this.#getResizeHandlePoints(drawing).forEach(point => {
+            const outerOffset = RESIZE_HANDLE_SIZE / 2;
+            const innerOffset = RESIZE_HANDLE_INNER_SIZE / 2;
+
+            this.#ctx.fillStyle = drawing.color;
+            this.#ctx.fillRect(
+                point.x - outerOffset,
+                point.y - outerOffset,
+                RESIZE_HANDLE_SIZE,
+                RESIZE_HANDLE_SIZE
+            );
+
+            this.#ctx.fillStyle = RESIZE_HANDLE_INNER_COLOR;
+            this.#ctx.fillRect(
+                point.x - innerOffset,
+                point.y - innerOffset,
+                RESIZE_HANDLE_INNER_SIZE,
+                RESIZE_HANDLE_INNER_SIZE
+            );
         });
     }
 
@@ -868,6 +946,7 @@ export class DrawCanvasShapes {
      */
     setDrawingMode(drawingMode) {
         this.#drawingMode = drawingMode;
+        this.#selectedDrawingIndex = undefined;
         this.#redraw();
     }
 
@@ -925,6 +1004,45 @@ export class DrawCanvasShapes {
     clearCanvas() {
         this.#points = [];
         this.#drawings = [];
+        this.#selectedDrawingIndex = undefined;
         this.#redraw();
+    }
+
+    /**
+     * Gets the currently selected drawing.
+     * @returns {{ index: number, drawing: Drawing } | undefined}
+     */
+    getSelectedDrawing() {
+        if (this.#selectedDrawingIndex === undefined) {
+            return undefined;
+        }
+        const drawing = this.#drawings[this.#selectedDrawingIndex];
+        if (!drawing) {
+            return undefined;
+        }
+        return { index: this.#selectedDrawingIndex, drawing };
+    }
+
+    /**
+     * Selects a drawing by index.
+     * @param {number} index - The index of the drawing to select.
+     */
+    selectDrawing(index) {
+        if (index >= 0 && index < this.#drawings.length) {
+            this.#selectedDrawingIndex = index;
+            this.#dispatchSelectionChangeEvent();
+            this.#redraw();
+        }
+    }
+
+    /**
+     * Deselects the currently selected drawing.
+     */
+    deselectDrawing() {
+        if (this.#selectedDrawingIndex !== undefined) {
+            this.#selectedDrawingIndex = undefined;
+            this.#dispatchSelectionChangeEvent();
+            this.#redraw();
+        }
     }
 }

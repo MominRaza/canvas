@@ -6,6 +6,8 @@ A simple and efficient library for drawing various shapes on an HTML5 canvas. Ea
 
 - Draw basic shapes (circles, rectangles, lines, triangles, polygons, directions)
 - Customize shapes with colors, borders, and styles
+- Select, move, and resize shapes in edit mode
+- Switch to view mode for read-only inspection
 - Clear and update the canvas with ease
 - Lightweight and easy to integrate
 
@@ -56,6 +58,13 @@ drawer.drawingMode = 'draw';
 drawer.showCrossIcon = true;
 drawer.lineWidth = 2;
 
+// use getSelectedDrawing to get the currently selected drawing in edit mode
+const selected = drawer.getSelectedDrawing(); // { index, drawing } or undefined
+
+// use selectDrawing/deselectDrawing to programmatically control selection
+drawer.selectDrawing(0);
+drawer.deselectDrawing();
+
 // use cancelDrawing method to cancel the current drawing
 drawer.cancelDrawing();
 
@@ -89,7 +98,7 @@ new DrawCanvasShapes(options);
   - __drawings__: `Array<Drawing>` (optional) - The initial drawings to display on the canvas.
   - __drawingType__: `DrawingType` (optional) - The type of drawing to create (`polygon`, `rectangle`, `circle`, `triangle`, `line`, `direction`).
   - __drawingColor__: `string` (optional) - The color of the drawing.
-  - __drawingMode__: `DrawingMode` (optional) - The mode of drawing (`draw`, `move`, `resize`).
+  - __drawingMode__: `DrawingMode` (optional) - The mode of drawing (`draw`, `edit`, `view`).
   - __crossIconSize__: `number` (optional) - The size of the cross icon.
   - __showCrossIcon__: `boolean` (optional) - Whether to show the cross icon or not.
   - __clickThreshold__: `number` (optional) - The click threshold for drawing polygons.
@@ -102,6 +111,15 @@ new DrawCanvasShapes(options);
 
 - __cancelDrawing()__: `void` - Cancels the current drawing.
 - __clearCanvas()__: `void` - Clears the canvas.
+- __getSelectedDrawing()__: `{ index: number, drawing: Drawing } | undefined` - Gets the currently selected drawing.
+- __selectDrawing(index)__: `void` - Selects a drawing by index.
+- __deselectDrawing()__: `void` - Deselects the currently selected drawing.
+
+### Events
+
+- __drawingsChange__: Fired when drawings are added or removed. `event.detail.drawings` contains the updated array.
+- __selectionChange__: Fired when the selected drawing changes. `event.detail` contains `{ index, drawing }` or `{ index: undefined, drawing: undefined }` on deselect.
+- __drawingLimitReached__: Fired when the drawings limit is reached.
 
 ### Type: `Drawing`
 
